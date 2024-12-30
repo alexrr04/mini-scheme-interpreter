@@ -1,0 +1,9 @@
+
+# Ignore the python virtual environment
+minischemeinterpreter
+
+# Ignore .antlr folder
+.antlr
+
+# Ignore makefile generated files
+generated

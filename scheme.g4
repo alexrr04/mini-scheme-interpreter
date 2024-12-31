@@ -10,11 +10,17 @@ expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' ID expr+ ')'             # FunctionCallExpr      
     | '(' arOperator expr+ ')'       # ArithmeticalOperationExpr
     | '(' relOperator expr+ ')'      # RelationalOperationExpr
-    | NUMBER                       # NumberExpr
-    | BOOLEAN                      # BooleanExpr
-    | STRING                       # StringExpr
-    | ID                           # IdentifierExpr
+    | '(' 'car' expr ')'             # CarExpr
+    | '(' 'cdr' expr ')'             # CdrExpr
+    | literal                        # LiteralExpr
     ;
+
+literal: '\'' '(' literal* ')' # ListExpr
+       | NUMBER  # NumberExpr
+       | BOOLEAN # BooleanExpr
+       | STRING  # StringExpr
+       | ID      # IdentifierExpr 
+       ;
 
 functionDef: '(' ID parameters ')' expr; // Name of the function, parameters, and function body
 

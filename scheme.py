@@ -98,7 +98,30 @@ class SchemeVisitor(schemeVisitor):
         elif operator.getText() == '<>':
             result = all(expressions[i] != expressions[i+1] for i in range(len(expressions) - 1))
         return '#t' if result else '#f'
+    
+    def visitCarExpr(self, ctx):
+        lst = self.visit(ctx.expr())
+
+        if not isinstance(lst, list):
+            raise ValueError(f"car expects a list, got {type(lst).__name__}")
         
+        if not lst:
+            raise ValueError("car expects a non-empty list")
+        
+        return lst[0]  # Return the first element
+
+    def visitCdrExpr(self, ctx):
+        lst = self.visit(ctx.expr())
+
+        if not isinstance(lst, list):
+            raise ValueError(f"cdr expects a list, got {type(lst).__name__}")
+        
+        if not lst:
+            raise ValueError("cdr expects a non-empty list")
+        
+        return lst[1:]  # Return all elements except the first
+
+
     def visitNumberExpr(self, ctx):
         return int(ctx.NUMBER().getText()) # Only integers are supported for now
 
@@ -117,7 +140,14 @@ class SchemeVisitor(schemeVisitor):
                 return value
             return value
         raise ValueError(f"Undefined identifier: {identifier}")
-        
+    
+    def visitListExpr(self, ctx):
+        elements = []
+        for expr in ctx.literal():
+            elements.append(self.visit(expr))
+
+        return elements
+    
 
 visitor = SchemeVisitor()
 while (True):

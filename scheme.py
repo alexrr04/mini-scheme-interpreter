@@ -1,9 +1,9 @@
+import argparse
 from antlr4 import *
 from generated.schemeLexer import schemeLexer
 from generated.schemeParser import schemeParser
 from generated.schemeVisitor import schemeVisitor
 from functools import reduce
-
 
 class SchemeVisitor(schemeVisitor):
 
@@ -14,7 +14,8 @@ class SchemeVisitor(schemeVisitor):
         """Visit the root node."""
         [expression] = list(ctx.getChildren())
         result = self.visit(expression)
-        print(format_for_scheme(result))  # Format output for Scheme-style display
+        if result is not None:  # Only print non-None results
+            print(format_for_scheme(result)) # Convert to Scheme-style format
 
     def visitConstantDefinitionExpr(self, ctx):
         """Handle 'define' for constants."""
@@ -203,12 +204,42 @@ def format_for_scheme(value):
         return f'"{value}"'
     return str(value)
 
-
-visitor = SchemeVisitor()
-while True:
-    input_stream = InputStream(input('mini-scheme> '))
+def run_program(source_code, visitor):
+    """Run a Scheme program."""
+    input_stream = InputStream(source_code)
     lexer = schemeLexer(input_stream)
     token_stream = CommonTokenStream(lexer)
     parser = schemeParser(token_stream)
     tree = parser.root()
     visitor.visit(tree)
+
+def main():
+    parser = argparse.ArgumentParser(description="Mini Scheme Interpreter")
+    parser.add_argument(
+        "file", nargs="?", help="Scheme program file to execute (.scm)", default=None
+    )
+    args = parser.parse_args()
+
+    visitor = SchemeVisitor()
+
+    if args.file:
+        # Execute Scheme file
+        with open(args.file, "r") as f:
+            source_code = f.read()
+        run_program(source_code, visitor)
+
+        # Call main() if defined
+        if "main" in visitor.memory:
+            run_program("(main)", visitor)
+        else:
+            print("Error: No main function defined.")
+    else:
+        # Interactive Mode
+        while True:
+            source_code = input("mini-scheme> ")
+            run_program(source_code, visitor)
+
+
+if __name__ == "__main__":
+    main()
+

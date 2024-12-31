@@ -7,7 +7,7 @@ expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'define' functionDef ')'  # FunctionDefinitionExpr  
     | '(' 'if' expr expr expr ')'   # IfExpr
     | '(' 'cond' condPair+ ')'     # CondExpr
-    | '(' ID expr+ ')'             # FunctionCallExpr      
+    | '(' ID expr* ')'             # FunctionCallExpr      
     | '(' arOperator expr+ ')'       # ArithmeticalOperationExpr
     | '(' relOperator expr+ ')'      # RelationalOperationExpr
     | '(' 'car' expr ')'             # CarExpr
@@ -27,7 +27,7 @@ literal: '\'' '(' literal* ')' # ListExpr
 
 functionDef: '(' ID parameters ')' expr; // Name of the function, parameters, and function body
 
-parameters: ID+; // List of parameters
+parameters: ID*; // List of parameters
 
 condPair: '(' expr expr ')'; // Condition and expression pair
 

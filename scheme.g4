@@ -14,6 +14,7 @@ expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'cdr' expr ')'             # CdrExpr
     | '(' 'cons' expr expr ')'       # ConsExpr
     | '(' 'null?' expr ')'           # NullExpr
+    | '(' 'let' '(' letBinding+ ')' expr ')' # LetExpr
     | literal                        # LiteralExpr
     ;
 
@@ -39,6 +40,8 @@ relOperator: '<' | '>'
            | '<=' | '>='
            | '=' | '<>'
            ;
+
+letBinding: '(' ID expr ')'; // Variable name and its value
 
 NUMBER: [0-9]+ ('.' [0-9]+)?;
 BOOLEAN: '#t' | '#f'; 

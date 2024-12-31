@@ -146,6 +146,26 @@ class SchemeVisitor(schemeVisitor):
         if not isinstance(lst, list):
             raise ValueError(f"null? expects a list, got {type(lst).__name__}")
         return not lst
+    
+    def visitLetExpr(self, ctx):
+        """Evaluate 'let' expressions."""
+        # Create a new temporary memory scope
+        previous_memory = self.memory.copy()
+
+        # Process bindings
+        for binding in ctx.letBinding():
+            identifier = binding.ID().getText()  # Name of the variable
+            value = self.visit(binding.expr())   # Evaluate the value
+            self.memory[identifier] = value      # Add to the local memory
+
+        # Evaluate the body of the let expression
+        body = ctx.expr()
+        result = self.visit(body)
+
+        # Restore the previous memory
+        self.memory = previous_memory
+
+        return result
 
     def visitNumberExpr(self, ctx):
         """Evaluate number expressions."""

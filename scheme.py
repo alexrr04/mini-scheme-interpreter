@@ -14,8 +14,8 @@ class SchemeVisitor(schemeVisitor):
         """Visit the root node."""
         [expression] = list(ctx.getChildren())
         result = self.visit(expression)
-        if result is not None:  # Only print non-None results
-            print(format_for_scheme(result)) # Convert to Scheme-style format
+        # if result is not None:  # Only print non-None results
+        #     print(format_for_scheme(result)) # Convert to Scheme-style format
 
     def visitConstantDefinitionExpr(self, ctx):
         """Handle 'define' for constants."""
@@ -29,7 +29,7 @@ class SchemeVisitor(schemeVisitor):
         parameters = [
             parameter.getText() for parameter in ctx.functionDef().parameters().ID()
         ]
-        body = ctx.functionDef().expr()
+        body = list(ctx.functionDef().expr())
         self.memory[function_name] = (parameters, body)
 
     def visitIfExpr(self, ctx):
@@ -70,8 +70,9 @@ class SchemeVisitor(schemeVisitor):
         # Bind the parameters to the arguments
         self.memory.update(dict(zip(parameters, arguments)))
 
-        # Evaluate the function body
-        result = self.visit(body)
+        result = None
+        for expression in body:
+            result = self.visit(expression)
 
         # Restore the previous memory state
         self.memory = previous_memory
@@ -167,6 +168,25 @@ class SchemeVisitor(schemeVisitor):
         self.memory = previous_memory
 
         return result
+    
+    def visitDisplayExpr(self, ctx):
+        """Display an expression or literal."""
+        value = self.visit(ctx.expr())
+        print(format_for_scheme(value)) # Convert to Scheme-style format
+
+    def visitReadExpr(self, ctx):
+        """Read user input."""
+        value = input()
+        try:
+            # Attempt to convert to a number
+            return int(value) if '.' not in value else float(value)
+        except ValueError:
+            # Return as a string if not a number
+            return value
+
+    def visitNewlineExpr(self, ctx):
+        """Print a newline character."""
+        print()
 
     def visitNumberExpr(self, ctx):
         """Evaluate number expressions."""

@@ -15,6 +15,9 @@ expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'cons' expr expr ')'       # ConsExpr
     | '(' 'null?' expr ')'           # NullExpr
     | '(' 'let' '(' letBinding+ ')' expr ')' # LetExpr
+    | '(' 'display' expr ')'         # DisplayExpr
+    | '(' 'read' ')'                 # ReadExpr
+    | '(' 'newline' ')'              # NewlineExpr
     | literal                        # LiteralExpr
     ;
 
@@ -25,7 +28,7 @@ literal: '\'' '(' literal* ')' # ListExpr
        | ID      # IdentifierExpr 
        ;
 
-functionDef: '(' ID parameters ')' expr; // Name of the function, parameters, and function body
+functionDef: '(' ID parameters ')' expr*; // Name of the function, parameters, and function body
 
 parameters: ID*; // List of parameters
 

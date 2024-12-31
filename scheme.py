@@ -13,16 +13,49 @@ class SchemeVisitor(schemeVisitor):
         [expression] = list(ctx.getChildren())
         print(self.visit(expression))
 
-    def visitOperationExpr(self, ctx):
+    def visitArithmeticalOperationExpr(self, ctx):
         context = list(ctx.getChildren())
         operator = context[1]
         expressions = context[2:-1] # Get all expressions except the last one
-        print(operator.getText(), expressions)
+        
         if operator.getText() == '+':
             return reduce(lambda acc, y: acc + y, [self.visit(expression) for expression in expressions])
+        elif operator.getText() == '-':
+            return reduce(lambda acc, y: acc - y, [self.visit(expression) for expression in expressions])
+        elif operator.getText() == '*':
+            return reduce(lambda acc, y: acc * y, [self.visit(expression) for expression in expressions])
+        elif operator.getText() == '/':
+            return reduce(lambda acc, y: acc // y, [self.visit(expression) for expression in expressions])
+        
+    def visitRelationalOperationExpr(self, ctx):
+        context = list(ctx.getChildren())
+        operator = context[1]
+        expressions = [self.visit(expression) for expression in context[2:-1]]
+        
+        if operator.getText() == '<':
+            result = all(expressions[i] < expressions[i+1] for i in range(len(expressions) - 1))
+        elif operator.getText() == '>':
+            result = all(expressions[i] > expressions[i+1] for i in range(len(expressions) - 1))
+        elif operator.getText() == '<=':
+            result = all(expressions[i] <= expressions[i+1] for i in range(len(expressions) - 1))
+        elif operator.getText() == '>=':
+            result = all(expressions[i] >= expressions[i+1] for i in range(len(expressions) - 1))
+        elif operator.getText() == '=':
+            result = all(expressions[i] == expressions[i+1] for i in range(len(expressions) - 1))
+        elif operator.getText() == '<>':
+            result = all(expressions[i] != expressions[i+1] for i in range(len(expressions) - 1))
+        return '#t' if result else '#f'
+        
+    def visitNumberExpr(self, ctx):
+        [number] = list(ctx.getChildren())
+        return int(number.getText()) # For now, only integers are supported
+    
+    def visitBooleanExpr(self, ctx):
+        [boolean] = list(ctx.getChildren())
+        return True if boolean.getText() == '#t' else False
         
 
-input_stream = InputStream(input('? '))
+input_stream = InputStream(input('mini-scheme> '))
 lexer = schemeLexer(input_stream)
 token_stream = CommonTokenStream(lexer)
 parser = schemeParser(token_stream)

@@ -43,7 +43,7 @@ relOperator: '<' | '>'
 NUMBER: [0-9]+ ('.' [0-9]+)?;
 BOOLEAN: '#t' | '#f'; 
 STRING: '"' .*? '"'; // Matches strings in double quotes
-ID: [a-zA-Z_][a-zA-Z0-9_]*;
+ID: [a-zA-Z_][a-zA-Z0-9_\-]*;
 
 COMMENT: ';' ~[\r\n]* -> skip; // Matches comments starting with ';' and skips them
 WS: [ \t\r\n]+ -> skip; // Skip whitespace

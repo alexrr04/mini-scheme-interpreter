@@ -43,14 +43,13 @@ class SchemeVisitor(schemeVisitor):
         cond_pairs = list(ctx.condPair())
         for cond in cond_pairs:
             condition = self.visit(cond.expr(0))
-            if condition == '#t':
+            if condition:
                 return self.visit(cond.expr(1))
 
     def visitFunctionCallExpr(self, ctx):
         """Evaluate function calls."""
-        context = list(ctx.getChildren())
-        function_name = context[1].getText()
-        arguments = [self.visit(expression) for expression in context[2:-1]]
+        function_name = ctx.ID().getText()
+        arguments = [self.visit(expression) for expression in ctx.expr()]
 
         if function_name not in self.memory:
             raise ValueError(f"Undefined function: {function_name}")
@@ -66,6 +65,8 @@ class SchemeVisitor(schemeVisitor):
 
         # Temporarily bind parameters to arguments in memory
         previous_memory = self.memory.copy()
+
+        # Bind the parameters to the arguments
         self.memory.update(dict(zip(parameters, arguments)))
 
         # Evaluate the function body
@@ -144,7 +145,7 @@ class SchemeVisitor(schemeVisitor):
         lst = self.visit(ctx.expr())
         if not isinstance(lst, list):
             raise ValueError(f"null? expects a list, got {type(lst).__name__}")
-        return '#t' if not lst else '#f'
+        return not lst
 
     def visitNumberExpr(self, ctx):
         """Evaluate number expressions."""
@@ -162,10 +163,8 @@ class SchemeVisitor(schemeVisitor):
         """Evaluate identifiers."""
         identifier = ctx.getText()
         if identifier in self.memory:
-            value = self.memory[identifier]
-            if isinstance(value, tuple):  # Function definition
-                return value
-            return value
+            return self.memory[identifier]
+        
         raise ValueError(f"Undefined identifier: {identifier}")
 
     def visitListExpr(self, ctx):

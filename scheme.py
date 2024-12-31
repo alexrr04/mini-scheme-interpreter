@@ -16,7 +16,7 @@ class SchemeVisitor(schemeVisitor):
     def visitConstantDefinitionExpr(self, ctx):
         identifier = ctx.ID().getText()
         value = self.visit(ctx.expr())
-
+        
         self.memory[identifier] = value
 
     def visitFunctionDefinitionExpr(self, ctx):

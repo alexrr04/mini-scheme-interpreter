@@ -13,6 +13,41 @@ class SchemeVisitor(schemeVisitor):
         [expression] = list(ctx.getChildren())
         print(self.visit(expression))
 
+    def visitFunctionDefinitionExpr(self, ctx):
+        function_name = ctx.functionDef().ID().getText()
+        parameters = [parameter.getText() for parameter in ctx.functionDef().parameters().ID()]
+        body = ctx.functionDef().expr()
+
+        # Store the function definition in memory
+        self.memory[function_name] = (parameters, body)
+        print(f"Function {function_name} defined")
+
+    def visitFunctionCallExpr(self, ctx):
+        context = list(ctx.getChildren())
+        function_name = context[1].getText()  # Function name
+        arguments = [self.visit(expression) for expression in context[2:-1]]  # Evaluate arguments
+
+        if function_name not in self.memory:
+            raise ValueError(f"Undefined function: {function_name}")
+
+        # Retrieve the function definition
+        parameters, body = self.memory[function_name]
+
+        if len(arguments) != len(parameters):
+            raise ValueError(f"Function {function_name} expects {len(parameters)} arguments, got {len(arguments)}")
+
+        # Temporarily bind parameters to arguments in memory
+        previous_memory = self.memory.copy()
+        self.memory.update(dict(zip(parameters, arguments)))
+
+        # Evaluate the function body
+        result = self.visit(body)
+
+        # Restore the previous memory state
+        self.memory = previous_memory
+
+        return result
+
     def visitArithmeticalOperationExpr(self, ctx):
         context = list(ctx.getChildren())
         operator = context[1]
@@ -53,13 +88,20 @@ class SchemeVisitor(schemeVisitor):
     def visitBooleanExpr(self, ctx):
         [boolean] = list(ctx.getChildren())
         return True if boolean.getText() == '#t' else False
+    
+    def visitIdentifierExpr(self, ctx):
+        identifier = ctx.getText()
+        if identifier in self.memory:
+            return self.memory[identifier]
+        raise ValueError(f"Undefined identifier: {identifier}")
         
 
-input_stream = InputStream(input('mini-scheme> '))
-lexer = schemeLexer(input_stream)
-token_stream = CommonTokenStream(lexer)
-parser = schemeParser(token_stream)
-tree = parser.root()
-
 visitor = SchemeVisitor()
-visitor.visit(tree)
+while (True):
+    input_stream = InputStream(input('mini-scheme> '))
+    lexer = schemeLexer(input_stream)
+    token_stream = CommonTokenStream(lexer)
+    parser = schemeParser(token_stream)
+    tree = parser.root()
+    
+    visitor.visit(tree)

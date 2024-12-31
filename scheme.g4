@@ -5,11 +5,13 @@ root: expr;
 
 expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'define' functionDef ')'  # FunctionDefinitionExpr  
+    | '(' 'if' expr expr expr ')'   # IfExpr
     | '(' ID expr+ ')'             # FunctionCallExpr      
     | '(' arOperator expr+ ')'       # ArithmeticalOperationExpr
     | '(' relOperator expr+ ')'      # RelationalOperationExpr
     | NUMBER                       # NumberExpr
     | BOOLEAN                      # BooleanExpr
+    | STRING                       # StringExpr
     | ID                           # IdentifierExpr
     ;
 
@@ -29,6 +31,7 @@ relOperator: '<' | '>'
 
 NUMBER: [0-9]+ ('.' [0-9]+)?;
 BOOLEAN: '#t' | '#f'; 
+STRING: '"' .*? '"'; // Matches strings in double quotes
 ID: [a-zA-Z_][a-zA-Z0-9_]*;
 
 COMMENT: ';' ~[\r\n]* -> skip; // Matches comments starting with ';' and skips them

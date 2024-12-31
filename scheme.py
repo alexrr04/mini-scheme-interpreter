@@ -26,6 +26,13 @@ class SchemeVisitor(schemeVisitor):
         
         self.memory[function_name] = (parameters, body)
 
+    def visitIfExpr(self, ctx):
+        condition = self.visit(ctx.expr(0))
+        true_branch = ctx.expr(1)
+        false_branch = ctx.expr(2)
+        
+        return self.visit(true_branch) if condition else self.visit(false_branch)
+
     def visitFunctionCallExpr(self, ctx):
         context = list(ctx.getChildren())
         function_name = context[1].getText()  # Function name
@@ -92,6 +99,9 @@ class SchemeVisitor(schemeVisitor):
     def visitBooleanExpr(self, ctx):
         [boolean] = list(ctx.getChildren())
         return True if boolean.getText() == '#t' else False
+    
+    def visitStringExpr(self, ctx):
+        return ctx.STRING().getText().strip('"')
     
     def visitIdentifierExpr(self, ctx):
         identifier = ctx.getText()

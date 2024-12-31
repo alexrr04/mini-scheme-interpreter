@@ -11,7 +11,8 @@ class SchemeVisitor(schemeVisitor):
 
     def visitRoot(self, ctx):
         [expression] = list(ctx.getChildren())
-        print(self.visit(expression))
+        result = self.visit(expression)
+        print(format_for_scheme(result))  # Format output for Scheme-style display
 
     def visitConstantDefinitionExpr(self, ctx):
         identifier = ctx.ID().getText()
@@ -120,7 +121,18 @@ class SchemeVisitor(schemeVisitor):
             raise ValueError("cdr expects a non-empty list")
         
         return lst[1:]  # Return all elements except the first
+    
+    def visitConsExpr(self, ctx):
+        # Evaluate the element to add and the list
+        element = self.visit(ctx.expr(0))
+        list_expr = ctx.expr(1)
+        lst = self.visit(list_expr)
 
+        # Ensure the second argument is a list
+        if not isinstance(lst, list):
+            raise ValueError(f"cons expects the second argument to be a list, got {type(lst).__name__}")
+
+        return [element] + lst 
 
     def visitNumberExpr(self, ctx):
         return int(ctx.NUMBER().getText()) # Only integers are supported for now
@@ -147,7 +159,16 @@ class SchemeVisitor(schemeVisitor):
             elements.append(self.visit(expr))
 
         return elements
-    
+
+def format_for_scheme(value):
+    if isinstance(value, list):
+        return f"({' '.join(map(format_for_scheme, value))})"
+    elif isinstance(value, bool):
+        return '#t' if value else '#f'
+    elif isinstance(value, str):
+        return f'"{value}"'
+    else:
+        return str(value)
 
 visitor = SchemeVisitor()
 while (True):

@@ -12,6 +12,7 @@ expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' relOperator expr+ ')'      # RelationalOperationExpr
     | '(' 'car' expr ')'             # CarExpr
     | '(' 'cdr' expr ')'             # CdrExpr
+    | '(' 'cons' expr expr ')'       # ConsExpr
     | literal                        # LiteralExpr
     ;
 

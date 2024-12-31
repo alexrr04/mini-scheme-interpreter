@@ -70,7 +70,7 @@ class SchemeVisitor(schemeVisitor):
     def visitArithmeticalOperationExpr(self, ctx):
         context = list(ctx.getChildren())
         operator = context[1]
-        expressions = context[2:-1] # Get all expressions except the last one
+        expressions = context[2:-1] 
         
         if operator.getText() == '+':
             return reduce(lambda acc, y: acc + y, [self.visit(expression) for expression in expressions])
@@ -98,7 +98,8 @@ class SchemeVisitor(schemeVisitor):
             result = all(expressions[i] == expressions[i+1] for i in range(len(expressions) - 1))
         elif operator.getText() == '<>':
             result = all(expressions[i] != expressions[i+1] for i in range(len(expressions) - 1))
-        return '#t' if result else '#f'
+        
+        return result
     
     def visitCarExpr(self, ctx):
         lst = self.visit(ctx.expr())
@@ -109,7 +110,7 @@ class SchemeVisitor(schemeVisitor):
         if not lst:
             raise ValueError("car expects a non-empty list")
         
-        return lst[0]  # Return the first element
+        return lst[0] 
 
     def visitCdrExpr(self, ctx):
         lst = self.visit(ctx.expr())
@@ -120,10 +121,9 @@ class SchemeVisitor(schemeVisitor):
         if not lst:
             raise ValueError("cdr expects a non-empty list")
         
-        return lst[1:]  # Return all elements except the first
+        return lst[1:] 
     
     def visitConsExpr(self, ctx):
-        # Evaluate the element to add and the list
         element = self.visit(ctx.expr(0))
         list_expr = ctx.expr(1)
         lst = self.visit(list_expr)
@@ -133,6 +133,16 @@ class SchemeVisitor(schemeVisitor):
             raise ValueError(f"cons expects the second argument to be a list, got {type(lst).__name__}")
 
         return [element] + lst 
+    
+    def visitNullExpr(self, ctx):
+        lst = self.visit(ctx.expr())
+
+        # Ensure the argument is a list
+        if not isinstance(lst, list):
+            raise ValueError(f"null? expects a list, got {type(lst).__name__}")
+        
+        return not lst
+
 
     def visitNumberExpr(self, ctx):
         return int(ctx.NUMBER().getText()) # Only integers are supported for now

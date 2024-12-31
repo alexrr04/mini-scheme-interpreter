@@ -13,6 +13,7 @@ expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'car' expr ')'             # CarExpr
     | '(' 'cdr' expr ')'             # CdrExpr
     | '(' 'cons' expr expr ')'       # ConsExpr
+    | '(' 'null?' expr ')'           # NullExpr
     | literal                        # LiteralExpr
     ;
 

@@ -32,6 +32,13 @@ class SchemeVisitor(schemeVisitor):
         false_branch = ctx.expr(2)
         
         return self.visit(true_branch) if condition else self.visit(false_branch)
+    
+    def visitCondExpr(self, ctx):
+        condPairs = list(ctx.condPair())
+        for cond in condPairs:
+            condition = self.visit(cond.expr(0))
+            if condition == '#t':
+                return self.visit(cond.expr(1))
 
     def visitFunctionCallExpr(self, ctx):
         context = list(ctx.getChildren())

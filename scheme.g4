@@ -6,6 +6,7 @@ root: expr;
 expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'define' functionDef ')'  # FunctionDefinitionExpr  
     | '(' 'if' expr expr expr ')'   # IfExpr
+    | '(' 'cond' condPair+ ')'     # CondExpr
     | '(' ID expr+ ')'             # FunctionCallExpr      
     | '(' arOperator expr+ ')'       # ArithmeticalOperationExpr
     | '(' relOperator expr+ ')'      # RelationalOperationExpr
@@ -18,6 +19,8 @@ expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
 functionDef: '(' ID parameters ')' expr; // Name of the function, parameters, and function body
 
 parameters: ID+; // List of parameters
+
+condPair: '(' expr expr ')'; // Condition and expression pair
 
 // Arithmetical Operator rules
 arOperator: '*' | '/'

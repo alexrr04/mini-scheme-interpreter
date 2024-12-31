@@ -1,11 +1,10 @@
 // MiniScheme grammar
 grammar scheme;
 
-root 
-    : expr;
+root: expr;
 
-// Expression rules
-expr: '(' 'define' functionDef ')'  # FunctionDefinitionExpr  
+expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
+    | '(' 'define' functionDef ')'  # FunctionDefinitionExpr  
     | '(' ID expr+ ')'             # FunctionCallExpr      
     | '(' arOperator expr+ ')'       # ArithmeticalOperationExpr
     | '(' relOperator expr+ ')'      # RelationalOperationExpr
@@ -28,7 +27,6 @@ relOperator: '<' | '>'
            | '=' | '<>'
            ;
 
-// Lexer rules
 NUMBER: [0-9]+ ('.' [0-9]+)?;
 BOOLEAN: '#t' | '#f'; 
 ID: [a-zA-Z_][a-zA-Z0-9_]*;

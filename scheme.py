@@ -13,14 +13,18 @@ class SchemeVisitor(schemeVisitor):
         [expression] = list(ctx.getChildren())
         print(self.visit(expression))
 
+    def visitConstantDefinitionExpr(self, ctx):
+        identifier = ctx.ID().getText()
+        value = self.visit(ctx.expr())
+
+        self.memory[identifier] = value
+
     def visitFunctionDefinitionExpr(self, ctx):
         function_name = ctx.functionDef().ID().getText()
         parameters = [parameter.getText() for parameter in ctx.functionDef().parameters().ID()]
         body = ctx.functionDef().expr()
-
-        # Store the function definition in memory
+        
         self.memory[function_name] = (parameters, body)
-        print(f"Function {function_name} defined")
 
     def visitFunctionCallExpr(self, ctx):
         context = list(ctx.getChildren())
@@ -92,7 +96,11 @@ class SchemeVisitor(schemeVisitor):
     def visitIdentifierExpr(self, ctx):
         identifier = ctx.getText()
         if identifier in self.memory:
-            return self.memory[identifier]
+            value = self.memory[identifier]
+            # If it's a function definition, just return the definition
+            if isinstance(value, tuple):
+                return value
+            return value
         raise ValueError(f"Undefined identifier: {identifier}")
         
 

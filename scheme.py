@@ -93,13 +93,11 @@ class SchemeVisitor(schemeVisitor):
         return '#t' if result else '#f'
         
     def visitNumberExpr(self, ctx):
-        [number] = list(ctx.getChildren())
-        return int(number.getText()) # For now, only integers are supported
-    
+        return int(ctx.NUMBER().getText()) # Only integers are supported for now
+
     def visitBooleanExpr(self, ctx):
-        [boolean] = list(ctx.getChildren())
-        return True if boolean.getText() == '#t' else False
-    
+        return ctx.BOOLEAN().getText() == '#t'
+
     def visitStringExpr(self, ctx):
         return ctx.STRING().getText().strip('"')
     

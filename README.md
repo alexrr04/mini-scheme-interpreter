@@ -401,7 +401,7 @@ self.memory = previous_memory
 
 This way, the memory management is centralized in the interpreter and the symbol table is used to store both global and local bindings.
 
-### Auxiliary Functions
+### Helper Functions
 
 The interpreter includes two auxiliary functions to help with the input and output parsing:
 

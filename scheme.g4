@@ -38,7 +38,7 @@ parameters: ID*; // List of parameters
 condPair: '(' expr expr ')'; // Condition and expression pair
 
 // Arithmetical Operator rules
-arOperator: '*' | '/' | 'modulo'
+arOperator: '*' | '/' | 'mod'
           | '+' | '-'
           ;
 

@@ -134,7 +134,7 @@ class SchemeVisitor(schemeVisitor):
             "-": lambda acc, y: acc - y,
             "*": lambda acc, y: acc * y,
             "/": lambda acc, y: acc // y,
-            "modulo": lambda acc, y: acc % y,
+            "mod": lambda acc, y: acc % y,
         }
         return reduce(
             operations[operator.getText()],

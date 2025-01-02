@@ -11,7 +11,7 @@
 )
 
 (define (parell x)
-    (= (modulo x 2) 0)
+    (= (mod x 2) 0)
 )
 
 (define (main)

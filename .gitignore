@@ -1,9 +1,16 @@
+# Python cache
+__pycache__/
+*.pyc
 
-# Ignore the python virtual environment
-minischemeinterpreter
+# Ignore python virtual environments
+venv/
+env/
 
 # Ignore .antlr folder
-.antlr
+.antlr/
 
 # Ignore makefile generated files
-generated
+generated/
+
+# OS-specific files
+.DS_Store

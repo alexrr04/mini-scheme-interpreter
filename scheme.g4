@@ -1,12 +1,15 @@
 // MiniScheme grammar
 grammar scheme;
 
-root: expr;
+root: expr*;
 
 expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'define' functionDef ')'  # FunctionDefinitionExpr  
     | '(' 'if' expr expr expr ')'   # IfExpr
     | '(' 'cond' condPair+ ')'     # CondExpr
+    | '(' 'and' expr+ ')'             # AndExpr
+    | '(' 'or' expr+ ')'              # OrExpr
+    | '(' 'not' expr ')'              # NotExpr
     | '(' ID expr* ')'             # FunctionCallExpr      
     | '(' arOperator expr+ ')'       # ArithmeticalOperationExpr
     | '(' relOperator expr+ ')'      # RelationalOperationExpr
@@ -14,7 +17,7 @@ expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'cdr' expr ')'             # CdrExpr
     | '(' 'cons' expr expr ')'       # ConsExpr
     | '(' 'null?' expr ')'           # NullExpr
-    | '(' 'let' '(' letBinding+ ')' expr ')' # LetExpr
+    | '(' 'let' '(' letBinding+ ')' expr+ ')' # LetExpr
     | '(' 'display' expr ')'         # DisplayExpr
     | '(' 'read' ')'                 # ReadExpr
     | '(' 'newline' ')'              # NewlineExpr

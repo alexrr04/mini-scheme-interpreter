@@ -1,4 +1,4 @@
 (define (main)
-  (display "Hello, world!")
-  (newline)
+    (display "Hello, world!")
+    (newline)
 )

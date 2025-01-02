@@ -12,8 +12,9 @@ class SchemeVisitor(schemeVisitor):
 
     def visitRoot(self, ctx):
         """Visit the root node."""
-        [expression] = list(ctx.getChildren())
-        result = self.visit(expression)
+        topLevelExpressions = list(ctx.getChildren())
+        for expression in topLevelExpressions:
+            self.visit(expression)
 
     def visitConstantDefinitionExpr(self, ctx):
         """Handle 'define' for constants."""
@@ -44,6 +45,18 @@ class SchemeVisitor(schemeVisitor):
             condition = self.visit(cond.expr(0))
             if condition:
                 return self.visit(cond.expr(1))
+            
+    def visitAndExpr(self, ctx):
+        """Evaluate 'and' expressions."""
+        return all(self.visit(expr) for expr in ctx.expr())
+
+    def visitOrExpr(self, ctx):
+        """Evaluate 'or' expressions."""
+        return any(self.visit(expr) for expr in ctx.expr())
+
+    def visitNotExpr(self, ctx):
+        """Evaluate 'not' expressions."""
+        return not self.visit(ctx.expr())
 
     def visitFunctionCallExpr(self, ctx):
         """Evaluate function calls."""
@@ -159,8 +172,8 @@ class SchemeVisitor(schemeVisitor):
             self.memory[identifier] = value      # Add to the local memory
 
         # Evaluate the body of the let expression
-        body = ctx.expr()
-        result = self.visit(body)
+        body = list(ctx.expr())
+        result = [self.visit(expression) for expression in body]
 
         # Restore the previous memory
         self.memory = previous_memory

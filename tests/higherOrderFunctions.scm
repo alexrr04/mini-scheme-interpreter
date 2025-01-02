@@ -15,9 +15,10 @@
 )
 
 (define (main)
+    (define lst '(1 2 3 4))
     (display (aply-twice add1 5))
     (newline)
-    (display (map doble '(1 2 3 4)))
+    (display (map doble lst))
     (newline)
-    (display (filter parell '(1 2 3 4)))
+    (display (filter parell lst))
 )

@@ -14,8 +14,6 @@ class SchemeVisitor(schemeVisitor):
         """Visit the root node."""
         [expression] = list(ctx.getChildren())
         result = self.visit(expression)
-        # if result is not None:  # Only print non-None results
-        #     print(format_for_scheme(result)) # Convert to Scheme-style format
 
     def visitConstantDefinitionExpr(self, ctx):
         """Handle 'define' for constants."""
@@ -172,7 +170,7 @@ class SchemeVisitor(schemeVisitor):
     def visitDisplayExpr(self, ctx):
         """Display an expression or literal."""
         value = self.visit(ctx.expr())
-        print(format_for_scheme(value)) # Convert to Scheme-style format
+        print(format_for_scheme(value), end='') # Convert to Scheme-style format
 
     def visitReadExpr(self, ctx):
         """Read user input."""

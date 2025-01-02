@@ -10,6 +10,39 @@ class SchemeVisitor(schemeVisitor):
     def __init__(self):
         self.memory = {}
 
+        # Define the built-in functions
+        params = ['f', 'lst']
+
+        # Map function body as a Scheme expression
+        mapBodyString = """
+        (cond 
+            ((null? lst) \'()) 
+            (#t (cons (f (car lst)) (map f (cdr lst))))
+        )
+        """
+        
+        # Filter function body as a Scheme expression
+        filterBodyString = """
+        (cond 
+            ((null? lst) \'()) ((f (car lst)) (cons (car lst) (filter f (cdr lst))))
+            (#t (filter f (cdr lst))))
+        )
+        """
+
+        # Parse the expressions and store them in memory
+        mapBody = self.parse_expression(mapBodyString).expr()
+        filterBody = self.parse_expression(filterBodyString).expr()
+        self.memory['map'] = (params, [mapBody])
+        self.memory['filter'] = (params, [filterBody])
+
+    def parse_expression(self, expr_string):
+        """Parse a Scheme expression string into a parse tree."""
+        input_stream = InputStream(expr_string)
+        lexer = schemeLexer(input_stream)
+        token_stream = CommonTokenStream(lexer)
+        parser = schemeParser(token_stream)
+        return parser
+
     def visitRoot(self, ctx):
         """Visit the root node."""
         topLevelExpressions = list(ctx.getChildren())
@@ -238,10 +271,7 @@ def format_for_scheme(value):
 
 def run_program(source_code, visitor):
     """Run a Scheme program."""
-    input_stream = InputStream(source_code)
-    lexer = schemeLexer(input_stream)
-    token_stream = CommonTokenStream(lexer)
-    parser = schemeParser(token_stream)
+    parser = visitor.parse_expression(source_code)
     tree = parser.root()
     visitor.visit(tree)
 

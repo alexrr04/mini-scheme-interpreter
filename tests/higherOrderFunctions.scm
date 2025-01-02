@@ -10,24 +10,8 @@
     (* x 2)
 )
 
-(define (map func llista)
-    (cond
-        ((null? llista) '())
-        (#t (cons (func (car llista)) (map func (cdr llista))))
-    )
-)
-
 (define (parell x)
     (= (modulo x 2) 0)
-)
-
-(define (filter predicat llista)
-    (cond
-        ((null? llista) '())  ;
-        ((predicat (car llista))
-            (cons (car llista) (filter predicat (cdr llista))))
-        (#t (filter predicat (cdr llista)))
-    )
 )
 
 (define (main)

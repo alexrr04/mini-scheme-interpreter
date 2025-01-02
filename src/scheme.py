@@ -231,6 +231,11 @@ class SchemeVisitor(schemeVisitor):
         """Print a newline character."""
         print()
 
+    def visitQuotedListExpr(self, ctx):
+        """Evaluate quoted list expressions."""
+        elements = [self.visit(expr) for expr in ctx.quotedList().literal()]
+        return elements
+
     def visitNumberExpr(self, ctx):
         """Evaluate number expressions."""
         return int(ctx.NUMBER().getText())
@@ -249,11 +254,6 @@ class SchemeVisitor(schemeVisitor):
         if identifier in self.memory:
             return self.memory[identifier]
         raise ValueError(f"Undefined identifier: {identifier}")
-
-    def visitListExpr(self, ctx):
-        """Evaluate list expressions."""
-        elements = [self.visit(expr) for expr in ctx.literal()]
-        return elements
 
 
 def format_for_scheme(value):

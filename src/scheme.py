@@ -18,9 +18,9 @@ class SchemeVisitor(schemeVisitor):
 
         # Map function body as a Scheme expression
         map_body_string = """
-        (cond 
-            ((null? lst) \'()) 
-            (#t (cons (f (car lst)) (map f (cdr lst))))
+        (if (null? lst) 
+            \'() 
+            (cons (f (car lst)) (map f (cdr lst)))
         )
         """
 

@@ -3,8 +3,7 @@ grammar scheme;
 
 root: expr*;
 
-expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
-    | '(' 'define' functionDef ')'  # FunctionDefinitionExpr  
+expr: '(' 'define' definition ')'       # DefinitionExpr
     | '(' ID expr* ')'             # FunctionCallExpr      
     | '(' 'if' expr expr expr ')'   # IfExpr
     | '(' 'cond' condPair+ ')'     # CondExpr
@@ -23,6 +22,7 @@ expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'newline' ')'              # NewlineExpr
     | literal                        # LiteralExpr
     ;
+    // | '(' 'define' functionDef ')'  # FunctionDefinitionExpr  
 
 literal: '\'' '(' literal* ')' # ListExpr
        | NUMBER  # NumberExpr
@@ -31,7 +31,9 @@ literal: '\'' '(' literal* ')' # ListExpr
        | ID      # IdentifierExpr 
        ;
 
-functionDef: '(' ID parameters ')' expr*; // Name of the function, parameters, and function body
+definition: '(' ID parameters ')' expr* # FunctionDefinitionExpr
+          | ID expr  # ConstantDefinitionExpr
+          ; 
 
 parameters: ID*; // List of parameters
 

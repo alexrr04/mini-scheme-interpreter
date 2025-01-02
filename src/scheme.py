@@ -63,11 +63,11 @@ class SchemeVisitor(schemeVisitor):
 
     def visitFunctionDefinitionExpr(self, ctx):
         """Handle 'define' for functions."""
-        function_name = ctx.functionDef().ID().getText()
+        function_name = ctx.ID().getText()
         parameters = [
-            parameter.getText() for parameter in ctx.functionDef().parameters().ID()
+            parameter.getText() for parameter in ctx.parameters().ID()
         ]
-        body = list(ctx.functionDef().expr())
+        body = list(ctx.expr())
         self.memory[function_name] = (parameters, body)
 
     def visitFunctionCallExpr(self, ctx):

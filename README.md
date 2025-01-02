@@ -10,7 +10,7 @@ The **Mini Scheme Interpreter** is a minimal implementation of a _Scheme_ progra
 
 - Python 3
 - ANTLR4 (listed below)
-- Make (optional)
+- Make (recommended)
 
 ### Setup
 

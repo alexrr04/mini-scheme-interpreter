@@ -5,35 +5,39 @@ from generated.schemeParser import schemeParser
 from generated.schemeVisitor import schemeVisitor
 from functools import reduce
 
-class SchemeVisitor(schemeVisitor):
 
-    def __init__(self):
+class SchemeVisitor(schemeVisitor):
+    """Visitor class for evaluating Scheme expressions."""
+
+    def __init__(self, terminal_interpreter=True):
         self.memory = {}
+        self.terminal_interpreter = terminal_interpreter # Flag to determine output behavior
 
         # Define the built-in functions
         params = ['f', 'lst']
 
         # Map function body as a Scheme expression
-        mapBodyString = """
+        map_body_string = """
         (cond 
             ((null? lst) \'()) 
             (#t (cons (f (car lst)) (map f (cdr lst))))
         )
         """
-        
+
         # Filter function body as a Scheme expression
-        filterBodyString = """
+        filter_body_string = """
         (cond 
-            ((null? lst) \'()) ((f (car lst)) (cons (car lst) (filter f (cdr lst))))
-            (#t (filter f (cdr lst))))
+            ((null? lst) \'()) 
+            ((f (car lst)) (cons (car lst) (filter f (cdr lst))))
+            (#t (filter f (cdr lst)))
         )
         """
 
         # Parse the expressions and store them in memory
-        mapBody = self.parse_expression(mapBodyString).expr()
-        filterBody = self.parse_expression(filterBodyString).expr()
-        self.memory['map'] = (params, [mapBody])
-        self.memory['filter'] = (params, [filterBody])
+        map_body = self.parse_expression(map_body_string).expr()
+        filter_body = self.parse_expression(filter_body_string).expr()
+        self.memory['map'] = (params, [map_body])
+        self.memory['filter'] = (params, [filter_body])
 
     def parse_expression(self, expr_string):
         """Parse a Scheme expression string into a parse tree."""
@@ -45,9 +49,11 @@ class SchemeVisitor(schemeVisitor):
 
     def visitRoot(self, ctx):
         """Visit the root node."""
-        topLevelExpressions = list(ctx.getChildren())
-        for expression in topLevelExpressions:
-            self.visit(expression)
+        top_level_expressions = list(ctx.getChildren())
+        for expression in top_level_expressions:
+            result = self.visit(expression)
+            if self.terminal_interpreter and result is not None:
+                print(format_for_scheme(result))
 
     def visitConstantDefinitionExpr(self, ctx):
         """Handle 'define' for constants."""
@@ -63,6 +69,33 @@ class SchemeVisitor(schemeVisitor):
         ]
         body = list(ctx.functionDef().expr())
         self.memory[function_name] = (parameters, body)
+
+    def visitIfExpr(self, ctx):
+        """Evaluate 'if' expressions."""
+        condition = self.visit(ctx.expr(0))
+        true_branch = ctx.expr(1)
+        false_branch = ctx.expr(2)
+        return self.visit(true_branch) if condition else self.visit(false_branch)
+
+    def visitCondExpr(self, ctx):
+        """Evaluate 'cond' expressions."""
+        cond_pairs = list(ctx.condPair())
+        for cond in cond_pairs:
+            condition = self.visit(cond.expr(0))
+            if condition:
+                return self.visit(cond.expr(1))
+
+    def visitAndExpr(self, ctx):
+        """Evaluate 'and' expressions."""
+        return all(self.visit(expr) for expr in ctx.expr())
+
+    def visitOrExpr(self, ctx):
+        """Evaluate 'or' expressions."""
+        return any(self.visit(expr) for expr in ctx.expr())
+
+    def visitNotExpr(self, ctx):
+        """Evaluate 'not' expressions."""
+        return not self.visit(ctx.expr())
 
     def visitFunctionCallExpr(self, ctx):
         """Evaluate function calls."""
@@ -83,51 +116,21 @@ class SchemeVisitor(schemeVisitor):
 
         # Temporarily bind parameters to arguments in memory
         previous_memory = self.memory.copy()
-
-        # Bind the parameters to the arguments
         self.memory.update(dict(zip(parameters, arguments)))
 
+        # Evaluate the function body
         result = None
         for expression in body:
             result = self.visit(expression)
 
         # Restore the previous memory state
         self.memory = previous_memory
-
         return result
-
-    def visitIfExpr(self, ctx):
-        """Evaluate 'if' expressions."""
-        condition = self.visit(ctx.expr(0))
-        true_branch = ctx.expr(1)
-        false_branch = ctx.expr(2)
-        return self.visit(true_branch) if condition else self.visit(false_branch)
-
-    def visitCondExpr(self, ctx):
-        """Evaluate 'cond' expressions."""
-        cond_pairs = list(ctx.condPair())
-        for cond in cond_pairs:
-            condition = self.visit(cond.expr(0))
-            if condition:
-                return self.visit(cond.expr(1))
-            
-    def visitAndExpr(self, ctx):
-        """Evaluate 'and' expressions."""
-        return all(self.visit(expr) for expr in ctx.expr())
-
-    def visitOrExpr(self, ctx):
-        """Evaluate 'or' expressions."""
-        return any(self.visit(expr) for expr in ctx.expr())
-
-    def visitNotExpr(self, ctx):
-        """Evaluate 'not' expressions."""
-        return not self.visit(ctx.expr())
 
     def visitArithmeticalOperationExpr(self, ctx):
         """Evaluate arithmetic operations."""
-        context = list(ctx.getChildren())
-        operator = context[1]
-        expressions = context[2:-1]
+        operator = ctx.getChild(1).getText()
+        expressions = [self.visit(expr) for expr in ctx.expr()]
 
         operations = {
             "+": lambda acc, y: acc + y,
@@ -136,16 +139,13 @@ class SchemeVisitor(schemeVisitor):
             "/": lambda acc, y: acc // y,
             "mod": lambda acc, y: acc % y,
         }
-        return reduce(
-            operations[operator.getText()],
-            [self.visit(expression) for expression in expressions],
-        )
+
+        return reduce(operations[operator], expressions)
 
     def visitRelationalOperationExpr(self, ctx):
         """Evaluate relational operations."""
-        context = list(ctx.getChildren())
-        operator = context[1]
-        expressions = [self.visit(expression) for expression in context[2:-1]]
+        operator = ctx.getChild(1).getText()
+        expressions = [self.visit(expr) for expr in ctx.expr()]
 
         operations = {
             "<": lambda x, y: x < y,
@@ -155,9 +155,9 @@ class SchemeVisitor(schemeVisitor):
             "=": lambda x, y: x == y,
             "<>": lambda x, y: x != y,
         }
-        
+
         return all(
-            operations[operator.getText()](expressions[i], expressions[i + 1])
+            operations[operator](expressions[i], expressions[i + 1])
             for i in range(len(expressions) - 1)
         )
 
@@ -213,20 +213,18 @@ class SchemeVisitor(schemeVisitor):
         self.memory = previous_memory
 
         return result
-    
+
     def visitDisplayExpr(self, ctx):
         """Display an expression or literal."""
         value = self.visit(ctx.expr())
-        print(format_for_scheme(value), end='') # Convert to Scheme-style format
+        print(format_for_scheme(value), end="")
 
     def visitReadExpr(self, ctx):
         """Read user input."""
         value = input()
         try:
-            # Attempt to convert to a number
-            return int(value) if '.' not in value else float(value)
+            return int(value) if "." not in value else float(value)
         except ValueError:
-            # Return as a string if not a number
             return value
 
     def visitNewlineExpr(self, ctx):
@@ -239,7 +237,7 @@ class SchemeVisitor(schemeVisitor):
 
     def visitBooleanExpr(self, ctx):
         """Evaluate boolean expressions."""
-        return ctx.BOOLEAN().getText() == '#t'
+        return ctx.BOOLEAN().getText() == "#t"
 
     def visitStringExpr(self, ctx):
         """Evaluate string expressions."""
@@ -250,7 +248,6 @@ class SchemeVisitor(schemeVisitor):
         identifier = ctx.getText()
         if identifier in self.memory:
             return self.memory[identifier]
-        
         raise ValueError(f"Undefined identifier: {identifier}")
 
     def visitListExpr(self, ctx):
@@ -263,17 +260,17 @@ def format_for_scheme(value):
     """Convert Python data to Scheme-style format."""
     if isinstance(value, list):
         return f"({' '.join(map(format_for_scheme, value))})"
-    elif isinstance(value, bool):
-        return '#t' if value else '#f'
-    elif isinstance(value, str):
-        return f'"{value}"'
+    if isinstance(value, bool):
+        return "#t" if value else "#f"
     return str(value)
+
 
 def run_program(source_code, visitor):
     """Run a Scheme program."""
     parser = visitor.parse_expression(source_code)
     tree = parser.root()
     visitor.visit(tree)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Mini Scheme Interpreter")
@@ -282,21 +279,18 @@ def main():
     )
     args = parser.parse_args()
 
-    visitor = SchemeVisitor()
-
     if args.file:
-        # Execute Scheme file
+        visitor = SchemeVisitor(terminal_interpreter=False)
         with open(args.file, "r") as f:
             source_code = f.read()
         run_program(source_code, visitor)
 
-        # Call main() if defined
         if "main" in visitor.memory:
             run_program("(main)", visitor)
         else:
             print("Error: No main function defined.")
     else:
-        # Interactive Mode
+        visitor = SchemeVisitor(terminal_interpreter=True)
         while True:
             source_code = input("mini-scheme> ")
             run_program(source_code, visitor)
@@ -304,4 +298,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

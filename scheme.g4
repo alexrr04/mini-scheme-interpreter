@@ -11,7 +11,7 @@ expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'and' expr+ ')'             # AndExpr
     | '(' 'or' expr+ ')'              # OrExpr
     | '(' 'not' expr ')'              # NotExpr
-    | '(' arOperator expr+ ')'       # ArithmeticalOperationExpr
+    | '(' arOperator expr+ ')'       # ArithmeticOperationExpr
     | '(' relOperator expr+ ')'      # RelationalOperationExpr
     | '(' 'car' expr ')'             # CarExpr
     | '(' 'cdr' expr ')'             # CdrExpr
@@ -37,7 +37,7 @@ parameters: ID*; // List of parameters
 
 condPair: '(' expr expr ')'; // Condition and expression pair
 
-// Arithmetical Operator rules
+// Arithmetic Operator rules
 arOperator: '*' | '/' | 'mod'
           | '+' | '-'
           ;

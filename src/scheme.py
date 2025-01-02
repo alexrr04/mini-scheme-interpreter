@@ -127,7 +127,7 @@ class SchemeVisitor(schemeVisitor):
         self.memory = previous_memory
         return result
 
-    def visitArithmeticalOperationExpr(self, ctx):
+    def visitArithmeticOperationExpr(self, ctx):
         """Evaluate arithmetic operations."""
         operator = ctx.getChild(1).getText()
         expressions = [self.visit(expr) for expr in ctx.expr()]

@@ -50,7 +50,7 @@ relOperator: '<' | '>' | '<=' | '>=' | '=' | '<>'   // Relational operators
 quotedList: '\'' '(' literal* ')'                   // Quoted list
           ;            
 
-NUMBER: [0-9]+ ('.' [0-9]+)?;                       // Matches numbers
+NUMBER: '-'? [0-9]+ ('.' [0-9]+)?;                  // Matches numbers: integers and floating point numbers
 BOOLEAN: '#t' | '#f';                               // Boolean values: #t or #f
 STRING: '"' .*? '"';                                // Matches strings in double quotes
 ID: [a-zA-Z_][a-zA-Z0-9_\-]*;                       // Matches identifiers: letters, digits, underscores, and hyphens

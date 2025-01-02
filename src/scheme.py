@@ -238,7 +238,7 @@ class SchemeVisitor(schemeVisitor):
 
     def visitNumberExpr(self, ctx):
         """Evaluate number expressions."""
-        return int(ctx.NUMBER().getText())
+        return float(ctx.getText()) if '.' in ctx.getText() else int(ctx.getText())
 
     def visitBooleanExpr(self, ctx):
         """Evaluate boolean expressions."""

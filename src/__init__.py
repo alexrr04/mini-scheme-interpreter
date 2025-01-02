@@ -1,4 +1,3 @@
 """
-Initialization for the src package.
-This package contains the main Scheme interpreter and generated files.
+The src package contains the main implementation of the Mini Scheme Interpreter.
 """

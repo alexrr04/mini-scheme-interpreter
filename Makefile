@@ -17,7 +17,7 @@ $(GENERATED_FILES): $(GRAMMAR) | $(OUTPUT_DIR)
 
 # Rule to generate the __init__.py file
 $(INIT_FILE): $(GENERATED_FILES)
-	echo '"""\nInitialization for the src.generated package.\nGenerated files for the Scheme interpreter.\n"""' > $(INIT_FILE)
+	echo '"""\nThe src.generated package contains ANTLR-generated files for the Scheme interpreter.\n"""' > $(INIT_FILE)
 
 # Ensure the output directory exists
 $(OUTPUT_DIR):

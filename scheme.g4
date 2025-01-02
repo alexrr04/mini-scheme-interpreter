@@ -5,12 +5,12 @@ root: expr*;
 
 expr: '(' 'define' ID expr ')'       # ConstantDefinitionExpr
     | '(' 'define' functionDef ')'  # FunctionDefinitionExpr  
+    | '(' ID expr* ')'             # FunctionCallExpr      
     | '(' 'if' expr expr expr ')'   # IfExpr
     | '(' 'cond' condPair+ ')'     # CondExpr
     | '(' 'and' expr+ ')'             # AndExpr
     | '(' 'or' expr+ ')'              # OrExpr
     | '(' 'not' expr ')'              # NotExpr
-    | '(' ID expr* ')'             # FunctionCallExpr      
     | '(' arOperator expr+ ')'       # ArithmeticalOperationExpr
     | '(' relOperator expr+ ')'      # RelationalOperationExpr
     | '(' 'car' expr ')'             # CarExpr

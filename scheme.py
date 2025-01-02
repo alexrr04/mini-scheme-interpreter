@@ -64,33 +64,6 @@ class SchemeVisitor(schemeVisitor):
         body = list(ctx.functionDef().expr())
         self.memory[function_name] = (parameters, body)
 
-    def visitIfExpr(self, ctx):
-        """Evaluate 'if' expressions."""
-        condition = self.visit(ctx.expr(0))
-        true_branch = ctx.expr(1)
-        false_branch = ctx.expr(2)
-        return self.visit(true_branch) if condition else self.visit(false_branch)
-
-    def visitCondExpr(self, ctx):
-        """Evaluate 'cond' expressions."""
-        cond_pairs = list(ctx.condPair())
-        for cond in cond_pairs:
-            condition = self.visit(cond.expr(0))
-            if condition:
-                return self.visit(cond.expr(1))
-            
-    def visitAndExpr(self, ctx):
-        """Evaluate 'and' expressions."""
-        return all(self.visit(expr) for expr in ctx.expr())
-
-    def visitOrExpr(self, ctx):
-        """Evaluate 'or' expressions."""
-        return any(self.visit(expr) for expr in ctx.expr())
-
-    def visitNotExpr(self, ctx):
-        """Evaluate 'not' expressions."""
-        return not self.visit(ctx.expr())
-
     def visitFunctionCallExpr(self, ctx):
         """Evaluate function calls."""
         function_name = ctx.ID().getText()
@@ -122,6 +95,33 @@ class SchemeVisitor(schemeVisitor):
         self.memory = previous_memory
 
         return result
+
+    def visitIfExpr(self, ctx):
+        """Evaluate 'if' expressions."""
+        condition = self.visit(ctx.expr(0))
+        true_branch = ctx.expr(1)
+        false_branch = ctx.expr(2)
+        return self.visit(true_branch) if condition else self.visit(false_branch)
+
+    def visitCondExpr(self, ctx):
+        """Evaluate 'cond' expressions."""
+        cond_pairs = list(ctx.condPair())
+        for cond in cond_pairs:
+            condition = self.visit(cond.expr(0))
+            if condition:
+                return self.visit(cond.expr(1))
+            
+    def visitAndExpr(self, ctx):
+        """Evaluate 'and' expressions."""
+        return all(self.visit(expr) for expr in ctx.expr())
+
+    def visitOrExpr(self, ctx):
+        """Evaluate 'or' expressions."""
+        return any(self.visit(expr) for expr in ctx.expr())
+
+    def visitNotExpr(self, ctx):
+        """Evaluate 'not' expressions."""
+        return not self.visit(ctx.expr())
 
     def visitArithmeticalOperationExpr(self, ctx):
         """Evaluate arithmetic operations."""

@@ -5,7 +5,7 @@ root: expr*;
 
 expr: '(' 'define' definition ')'               # DefinitionExpr
     | '(' ID expr* ')'                          # FunctionCallExpr      
-    | '(' 'if' expr expr expr ')'               # IfExpr
+    | '(' 'if' expr expr+ expr+ ')'               # IfExpr
     | '(' 'cond' condPair+ ')'                  # CondExpr
     | '(' 'and' expr+ ')'                       # AndExpr
     | '(' 'or' expr+ ')'                        # OrExpr
@@ -36,7 +36,7 @@ literal: quotedList                             # QuotedListExpr
 
 parameters: ID*;                                    // Zero or more parameters
 
-condPair: '(' expr expr ')';                        // (condition expression)
+condPair: '(' expr expr+ ')';                        // (condition expression)
 
 letBinding: '(' ID expr ')';                        // (variable_name expression)
 

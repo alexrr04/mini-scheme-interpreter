@@ -73,9 +73,11 @@ class SchemeVisitor(schemeVisitor):
     def visitIfExpr(self, ctx):
         """Evaluate 'if' expressions."""
         condition = self.visit(ctx.expr(0))
-        true_branch = ctx.expr(1)
-        false_branch = ctx.expr(2)
-        return self.visit(true_branch) if condition else self.visit(false_branch)
+        true_branch = list(ctx.expr(1))
+        false_branch = list(ctx.expr(2))
+        if condition:
+            return [self.visit(expression) for expression in true_branch]
+        return [self.visit(expression) for expression in false_branch]
 
     def visitCondExpr(self, ctx):
         """Evaluate 'cond' expressions."""
@@ -83,7 +85,7 @@ class SchemeVisitor(schemeVisitor):
         for cond in cond_pairs:
             condition = self.visit(cond.expr(0))
             if condition:
-                return self.visit(cond.expr(1))
+                return [self.visit(expression) for expression in cond.expr()[1:]]
 
     def visitAndExpr(self, ctx):
         """Evaluate 'and' expressions."""

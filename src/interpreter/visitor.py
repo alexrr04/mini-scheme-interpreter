@@ -187,11 +187,25 @@ class SchemeVisitor(schemeVisitor):
 
     def visitReadExpr(self, ctx):
         """Read user input."""
-        value = input()
+        value = input().strip()  # Trim whitespace
+
+        # Handle quoted lists
+        if value.startswith("'(") and value.endswith(")"):
+            try:
+                return self.visit(parse_expression(value).expr())
+            except Exception as e:
+                raise ValueError(f"Invalid list format: {value}") from e
+
+        # Handle numeric input
         try:
-            return int(value) if "." not in value else float(value)
+            if "." in value:
+                return float(value)  # Convert to float if a dot is present
+            return int(value)  # Convert to int if no dot
         except ValueError:
-            return value
+            pass  # Not a number, continue to treat as string
+
+        # Default to string
+        return value
 
     def visitNewlineExpr(self, ctx):
         """Print a newline character."""

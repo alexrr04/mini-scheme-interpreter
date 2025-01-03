@@ -1,3 +1,4 @@
+# src/interpreter/tests/__init__.py
 """
-The tests package contains unit tests and integration tests for the Mini Scheme Interpreter.
+Unit tests for the Mini Scheme Interpreter.
 """

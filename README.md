@@ -163,6 +163,22 @@ It is possible to define constants using the `define` keyword. Constants are imm
   (if (< 5 3) 1 2) ; Result: 2
   ```
 
+  It is also possible to use `if` without the second expression and to use multiple expressions in the consequent and alternative branches using the `begin` keyword.
+
+  ```scheme
+  (if (> 5 3) 1) ; Result: #t
+
+  (if (< 5 3)
+      (begin
+        (display "5 is less than 3")
+        (newline)
+      )
+      (begin
+        (display "5 is not less than 3") ; Result: "5 is not less than 3"
+        (newline) ; Writes a new line to the standard output
+      ))
+  ```
+
 - `cond`: A multi-conditional expression. Each clause is a list with a condition and an expression. The first clause with a true condition is evaluated.
 
   ```scheme
@@ -170,6 +186,24 @@ It is possible to define constants using the `define` keyword. Constants are imm
         ((< 5 3) 1)
         ((> 5 3) 2)
         (#t 3)) ; Result: 2
+  ```
+
+  `else` can also be used as the last clause to match any condition.
+
+  ```scheme
+  (cond
+      ((< 5 3) "less")
+      ((= 5 3) "equal")
+      (else "greater")) ; Result: "greater"
+  ```
+
+  As with `if`, it is possible to evaluate multiple expressions in each clause.
+
+  ```scheme
+  (cond
+      ((< 5 3) (display "5 is less than 3") (newline) "less")
+      ((= 5 3) (display "5 is greater than 3") (newline) "equal")
+      (else (display "5 is equal to 3") (newline) "greater")) ; Result: "greater"
   ```
 
 ### Lists

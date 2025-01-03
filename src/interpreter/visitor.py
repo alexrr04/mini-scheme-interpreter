@@ -79,7 +79,7 @@ class SchemeVisitor(schemeVisitor):
             # Evaluate the 'then' branch
             return self.visit(ctx.ifBranch(0))
         
-        elif ctx.ifBranch(1) is not None: 
+        elif ctx.ifBranch(1): 
 
             # Evaluate the 'else' branch if present
             return self.visit(ctx.ifBranch(1))
@@ -93,11 +93,17 @@ class SchemeVisitor(schemeVisitor):
     def visitCondExpr(self, ctx):
         """Evaluate 'cond' expressions."""
         cond_pairs = list(ctx.condPair())
+        else_branch = ctx.elseBranch()
+
         for cond in cond_pairs:
             condition = self.visit(cond.expr(0))
             if condition:
                 # Evaluate all expressions in the branch and return the last one
                 return [self.visit(expr) for expr in cond.expr()[1:]][-1]
+        
+        if else_branch:
+            # Evaluate the 'else' branch if present
+            return [self.visit(expr) for expr in else_branch.expr()][-1]
 
     def visitAndExpr(self, ctx):
         """Evaluate 'and' expressions."""

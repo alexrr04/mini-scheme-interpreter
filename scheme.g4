@@ -6,7 +6,7 @@ root: expr*;
 expr: '(' 'define' definition ')'               # DefinitionExpr
     | '(' ID expr* ')'                          # FunctionCallExpr      
     | '(' 'if' expr ifBranch ifBranch? ')'      # IfExpr
-    | '(' 'cond' condPair+ ')'                  # CondExpr
+    | '(' 'cond' condPair+ elseBranch? ')'      # CondExpr
     | '(' 'and' expr+ ')'                       # AndExpr
     | '(' 'or' expr+ ')'                        # OrExpr
     | '(' 'not' expr ')'                        # NotExpr
@@ -29,18 +29,14 @@ definition: '(' ID parameters ')' expr*         # FunctionDefinitionExpr
 
 ifBranch: '(' 'begin' expr+ ')'                 # IfBeginExpr
         | expr                                  # IfSingleExpr
-        ;                               
+        ;              
 
-literal: quotedList                             # QuotedListExpr
-       | NUMBER                                 # NumberExpr
-       | BOOLEAN                                # BooleanExpr
-       | STRING                                 # StringExpr
-       | ID                                     # IdentifierExpr
-       ;
-
-parameters: ID*;                                    // Zero or more parameters
+elseBranch: '(' 'else' expr+ ')'                
+          ;
 
 condPair: '(' expr expr+ ')';                       // (condition expression)
+
+parameters: ID*;                                    // Zero or more parameters
 
 letBinding: '(' ID expr ')';                        // (variable_name expression)
 
@@ -50,6 +46,13 @@ arOperator: '*' | '/' | 'mod' | '+' | '-'           // Arithmetic operators
 
 relOperator: '<' | '>' | '<=' | '>=' | '=' | '<>'   // Relational operators
            ;
+
+literal: quotedList                             # QuotedListExpr
+       | NUMBER                                 # NumberExpr
+       | BOOLEAN                                # BooleanExpr
+       | STRING                                 # StringExpr
+       | ID                                     # IdentifierExpr
+       ;
 
 quotedList: '\'' '(' literal* ')'                   // Quoted list
           ;            

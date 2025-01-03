@@ -4,6 +4,8 @@
 
 The **Mini Scheme Interpreter** is a minimal implementation of a _Scheme_ programming language interpreter written in _Python_, using _ANTLR_ for grammar definition and parsing. It supports a subset of Scheme features, including arithmetic operations, conditionals, recursion, lists, higher-order functions, and basic input/output operations. This project was created as a University assignment for the _Programming Languages_ course of the _Informatics Engineering_ degree at _UPC (Universitat Politècnica de Catalunya)_.
 
+---
+
 ## Usage
 
 ### Requirements
@@ -23,7 +25,7 @@ The **Mini Scheme Interpreter** is a minimal implementation of a _Scheme_ progra
 
    Windows users may need some additional steps to install _ANTLR_: [antlr4-tools-reference](https://github.com/antlr/antlr4-tools)
 
-2. Build the project (generate _Python_ files from _ANTLR_ grammar):
+2. Build the project (generate the necessary _Python_ files from _ANTLR_ grammar):
 
    ```bash
    make
@@ -163,6 +165,22 @@ It is possible to define constants using the `define` keyword. Constants are imm
   (if (< 5 3) 1 2) ; Result: 2
   ```
 
+  It is also possible to use `if` without the second expression and to use multiple expressions in the consequent and alternative branches using the `begin` keyword.
+
+  ```scheme
+  (if (> 5 3) 1) ; Result: #t
+
+  (if (< 5 3)
+      (begin
+        (display "5 is less than 3")
+        (newline)
+      )
+      (begin
+        (display "5 is not less than 3") ; Result: "5 is not less than 3"
+        (newline) ; Writes a new line to the standard output
+      ))
+  ```
+
 - `cond`: A multi-conditional expression. Each clause is a list with a condition and an expression. The first clause with a true condition is evaluated.
 
   ```scheme
@@ -170,6 +188,24 @@ It is possible to define constants using the `define` keyword. Constants are imm
         ((< 5 3) 1)
         ((> 5 3) 2)
         (#t 3)) ; Result: 2
+  ```
+
+  `else` can also be used as the last clause to match any condition.
+
+  ```scheme
+  (cond
+      ((< 5 3) "less")
+      ((= 5 3) "equal")
+      (else "greater")) ; Result: "greater"
+  ```
+
+  As with `if`, it is possible to evaluate multiple expressions in each clause.
+
+  ```scheme
+  (cond
+      ((< 5 3) (display "5 is less than 3") (newline) "less")
+      ((= 5 3) (display "5 is greater than 3") (newline) "equal")
+      (else (display "5 is equal to 3") (newline) "greater")) ; Result: "greater"
   ```
 
 ### Lists
@@ -383,14 +419,16 @@ The interpreter supports the following types:
 The grammar for the _Mini Scheme_ language is defined in the `scheme.g4` file using _ANTLR_. The grammar includes the following rules:
 
 - `root`: The root rule that matches zero or more expressions.
-- `expr`: Matches various types of expressions, including definitions, function calls, conditionals, arithmetic operations, relational operations, list operations and literals.
+- `expr`: Matches various types of expressions, including definitions, function calls, conditionals, logical operations, arithmetic operations, relational operations, list operations, input/output operations, and literals.
 - `definition`: Matches function and constant definitions.
-- `literal`: Matches literals such as numbers, booleans, strings, identifiers and quoted lists.
-- `parameters`: Matches zero or more parameters for function definitions.
+- `ifBranch`: Matches branches for `if` expressions with and without begin.
 - `condPair`: Matches a pair of condition and expression for `cond` expressions.
+- `elseBranch`: Matches the else branch for `cond` expressions.
+- `parameters`: Matches zero or more parameters for function definitions.
 - `letBinding`: Matches variable bindings for `let` expressions.
 - `arOperator`: Matches arithmetic operators (`+`, `-`, `*`, `/`, `mod`).
 - `relOperator`: Matches relational operators (`<`, `>`, `<=`, `>=`, `=`, `<>`).
+- `literal`: Matches literals such as numbers, booleans, strings, identifiers, and quoted lists.
 - `quotedList`: Matches quoted lists.
 - `NUMBER`: Matches numbers (integers and floating-point numbers).
 - `BOOLEAN`: Matches boolean values (`#t`, `#f`).

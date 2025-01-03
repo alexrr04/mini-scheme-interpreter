@@ -1,5 +1,6 @@
 from interpreter.utilities import parse_expression, format_for_scheme
 from interpreter.builtins import define_builtins
+from interpreter.operators import ARITHMETIC_OPERATIONS, RELATIONAL_OPERATIONS
 from generated.schemeVisitor import schemeVisitor
 from functools import reduce
 
@@ -72,18 +73,37 @@ class SchemeVisitor(schemeVisitor):
 
     def visitIfExpr(self, ctx):
         """Evaluate 'if' expressions."""
-        condition = self.visit(ctx.expr(0))
-        true_branch = ctx.expr(1)
-        false_branch = ctx.expr(2)
-        return self.visit(true_branch) if condition else self.visit(false_branch)
+        condition = self.visit(ctx.expr())
+
+        if condition:
+            # Evaluate the 'then' branch
+            return self.visit(ctx.ifBranch(0))
+        
+        elif ctx.ifBranch(1): 
+
+            # Evaluate the 'else' branch if present
+            return self.visit(ctx.ifBranch(1))
+       
+    def visitIfBeginExpr(self, ctx):
+        expressions = list(ctx.expr())
+        for expression in expressions:
+            result = self.visit(expression)
+        return result
 
     def visitCondExpr(self, ctx):
         """Evaluate 'cond' expressions."""
         cond_pairs = list(ctx.condPair())
+        else_branch = ctx.elseBranch()
+
         for cond in cond_pairs:
             condition = self.visit(cond.expr(0))
             if condition:
-                return self.visit(cond.expr(1))
+                # Evaluate all expressions in the branch and return the last one
+                return [self.visit(expr) for expr in cond.expr()[1:]][-1]
+        
+        if else_branch:
+            # Evaluate the 'else' branch if present
+            return [self.visit(expr) for expr in else_branch.expr()][-1]
 
     def visitAndExpr(self, ctx):
         """Evaluate 'and' expressions."""
@@ -102,32 +122,21 @@ class SchemeVisitor(schemeVisitor):
         operator = ctx.getChild(1).getText()
         expressions = [self.visit(expr) for expr in ctx.expr()]
 
-        operations = {
-            "+": lambda acc, y: acc + y,
-            "-": lambda acc, y: acc - y,
-            "*": lambda acc, y: acc * y,
-            "/": lambda acc, y: acc // y,
-            "mod": lambda acc, y: acc % y,
-        }
+        if operator not in ARITHMETIC_OPERATIONS:
+            raise SyntaxError(f"Unknown operator: {operator}")
 
-        return reduce(operations[operator], expressions)
+        return reduce(ARITHMETIC_OPERATIONS[operator], expressions)
 
     def visitRelationalOperationExpr(self, ctx):
         """Evaluate relational operations."""
         operator = ctx.getChild(1).getText()
         expressions = [self.visit(expr) for expr in ctx.expr()]
 
-        operations = {
-            "<": lambda x, y: x < y,
-            ">": lambda x, y: x > y,
-            "<=": lambda x, y: x <= y,
-            ">=": lambda x, y: x >= y,
-            "=": lambda x, y: x == y,
-            "<>": lambda x, y: x != y,
-        }
+        if operator not in RELATIONAL_OPERATIONS:
+            raise SyntaxError(f"Unknown operator: {operator}")
 
         return all(
-            operations[operator](expressions[i], expressions[i + 1])
+            RELATIONAL_OPERATIONS[operator](expressions[i], expressions[i + 1])
             for i in range(len(expressions) - 1)
         )
 
@@ -191,11 +200,25 @@ class SchemeVisitor(schemeVisitor):
 
     def visitReadExpr(self, ctx):
         """Read user input."""
-        value = input()
+        value = input().strip()  # Trim whitespace
+
+        # Handle quoted lists
+        if value.startswith("'(") and value.endswith(")"):
+            try:
+                return self.visit(parse_expression(value).expr())
+            except Exception as e:
+                raise ValueError(f"Invalid list format: {value}") from e
+
+        # Handle numeric input
         try:
-            return int(value) if "." not in value else float(value)
+            if "." in value:
+                return float(value)  # Convert to float if a dot is present
+            return int(value)  # Convert to int if no dot
         except ValueError:
-            return value
+            pass  # Not a number, continue to treat as string
+
+        # Default to string
+        return value
 
     def visitNewlineExpr(self, ctx):
         """Print a newline character."""

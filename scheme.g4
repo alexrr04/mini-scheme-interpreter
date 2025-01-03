@@ -5,8 +5,8 @@ root: expr*;
 
 expr: '(' 'define' definition ')'               # DefinitionExpr
     | '(' ID expr* ')'                          # FunctionCallExpr      
-    | '(' 'if' expr expr expr ')'               # IfExpr
-    | '(' 'cond' condPair+ ')'                  # CondExpr
+    | '(' 'if' expr ifBranch ifBranch? ')'      # IfExpr
+    | '(' 'cond' condPair+ elseBranch? ')'      # CondExpr
     | '(' 'and' expr+ ')'                       # AndExpr
     | '(' 'or' expr+ ')'                        # OrExpr
     | '(' 'not' expr ')'                        # NotExpr
@@ -27,16 +27,16 @@ definition: '(' ID parameters ')' expr*         # FunctionDefinitionExpr
           | ID expr                             # ConstantDefinitionExpr
           ; 
 
-literal: quotedList                             # QuotedListExpr
-       | NUMBER                                 # NumberExpr
-       | BOOLEAN                                # BooleanExpr
-       | STRING                                 # StringExpr
-       | ID                                     # IdentifierExpr
-       ;
+ifBranch: '(' 'begin' expr+ ')'                 # IfBeginExpr
+        | expr                                  # IfSingleExpr
+        ;              
+
+condPair: '(' expr expr+ ')';                       // (condition expression)
+
+elseBranch: '(' 'else' expr+ ')'                    // (else expression)     
+          ;
 
 parameters: ID*;                                    // Zero or more parameters
-
-condPair: '(' expr expr ')';                        // (condition expression)
 
 letBinding: '(' ID expr ')';                        // (variable_name expression)
 
@@ -46,6 +46,13 @@ arOperator: '*' | '/' | 'mod' | '+' | '-'           // Arithmetic operators
 
 relOperator: '<' | '>' | '<=' | '>=' | '=' | '<>'   // Relational operators
            ;
+
+literal: quotedList                             # QuotedListExpr
+       | NUMBER                                 # NumberExpr
+       | BOOLEAN                                # BooleanExpr
+       | STRING                                 # StringExpr
+       | ID                                     # IdentifierExpr
+       ;
 
 quotedList: '\'' '(' literal* ')'                   // Quoted list
           ;            

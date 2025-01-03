@@ -15,7 +15,7 @@ def define_builtins():
     (cond 
         ((null? lst) \'()) 
         ((f (car lst)) (cons (car lst) (filter f (cdr lst))))
-        (#t (filter f (cdr lst)))
+        (else (filter f (cdr lst)))
     )
     """
 

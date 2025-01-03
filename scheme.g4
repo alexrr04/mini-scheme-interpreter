@@ -5,7 +5,7 @@ root: expr*;
 
 expr: '(' 'define' definition ')'               # DefinitionExpr
     | '(' ID expr* ')'                          # FunctionCallExpr      
-    | '(' 'if' expr trueBranch falseBranch ')'  # IfExpr
+    | '(' 'if' expr ifBranch ifBranch? ')'      # IfExpr
     | '(' 'cond' condPair+ ')'                  # CondExpr
     | '(' 'and' expr+ ')'                       # AndExpr
     | '(' 'or' expr+ ')'                        # OrExpr
@@ -27,9 +27,9 @@ definition: '(' ID parameters ')' expr*         # FunctionDefinitionExpr
           | ID expr                             # ConstantDefinitionExpr
           ; 
 
-trueBranch: expr+;                               // True branch of if statement
-
-falseBranch: expr+;                              // False branch of if statement
+ifBranch: '(' 'begin' expr+ ')'                 # IfBeginExpr
+        | expr                                  # IfSingleExpr
+        ;                               
 
 literal: quotedList                             # QuotedListExpr
        | NUMBER                                 # NumberExpr
@@ -40,7 +40,7 @@ literal: quotedList                             # QuotedListExpr
 
 parameters: ID*;                                    // Zero or more parameters
 
-condPair: '(' expr expr+ ')';                        // (condition expression)
+condPair: '(' expr expr+ ')';                       // (condition expression)
 
 letBinding: '(' ID expr ')';                        // (variable_name expression)
 

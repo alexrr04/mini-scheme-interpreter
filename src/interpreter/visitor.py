@@ -74,15 +74,22 @@ class SchemeVisitor(schemeVisitor):
     def visitIfExpr(self, ctx):
         """Evaluate 'if' expressions."""
         condition = self.visit(ctx.expr())
+
         if condition:
-            # Evaluate all expressions in the true branch and return the last one
-            true_branch = ctx.trueBranch()
-            return [self.visit(expression) for expression in true_branch.expr()][-1]
+            # Evaluate the 'then' branch
+            return self.visit(ctx.ifBranch(0))
         
-        # Evaluate all expressions in the false branch and return the last one
-        false_branch = ctx.falseBranch()
-        return [self.visit(expression) for expression in false_branch.expr()][-1]
-    
+        elif ctx.ifBranch(1) is not None: 
+
+            # Evaluate the 'else' branch if present
+            return self.visit(ctx.ifBranch(1))
+       
+    def visitIfBeginExpr(self, ctx):
+        expressions = list(ctx.expr())
+        for expression in expressions:
+            result = self.visit(expression)
+        return result
+
     def visitCondExpr(self, ctx):
         """Evaluate 'cond' expressions."""
         cond_pairs = list(ctx.condPair())

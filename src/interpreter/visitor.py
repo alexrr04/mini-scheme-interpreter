@@ -9,8 +9,9 @@ class SchemeVisitor(schemeVisitor):
     """Visitor class for evaluating Scheme expressions."""
 
     def __init__(self, interactive_mode=True):
+        """Initialize the visitor with optional interactive mode."""
         self.memory = {}
-        self.interactive_mode = interactive_mode # Flag to determine output behavior
+        self.interactive_mode = interactive_mode  # Output behavior flag
 
         # Add built-in functions to memory
         builtins = define_builtins()
@@ -20,8 +21,7 @@ class SchemeVisitor(schemeVisitor):
 
     def visitRoot(self, ctx):
         """Visit the root node."""
-        top_level_expressions = list(ctx.getChildren())
-        for expression in top_level_expressions:
+        for expression in ctx.getChildren():
             result = self.visit(expression)
             if self.interactive_mode and result is not None:
                 print(format_for_scheme(result))
@@ -35,75 +35,59 @@ class SchemeVisitor(schemeVisitor):
     def visitFunctionDefinitionExpr(self, ctx):
         """Handle 'define' for functions."""
         function_name = ctx.ID().getText()
-        parameters = [
-            parameter.getText() for parameter in ctx.parameters().ID()
-        ]
+        parameters = [param.getText() for param in ctx.parameters().ID()]
         body = list(ctx.expr())
         self.memory[function_name] = (parameters, body)
 
     def visitFunctionCallExpr(self, ctx):
         """Evaluate function calls."""
         function_name = ctx.ID().getText()
-        arguments = [self.visit(expression) for expression in ctx.expr()]
+        arguments = [self.visit(expr) for expr in ctx.expr()]
 
         if function_name not in self.memory:
             raise ValueError(f"Undefined function: {function_name}")
 
-        # Retrieve the function definition
         parameters, body = self.memory[function_name]
 
         if len(arguments) != len(parameters):
             raise ValueError(
                 f"Function {function_name} expects {len(parameters)} arguments, "
-                f"got {len(arguments)}"
+                f"got {len(arguments)}."
             )
 
-        # Temporarily bind parameters to arguments in memory
-        previous_memory = self.memory.copy()
-        self.memory.update(dict(zip(parameters, arguments)))
+        previous_memory = self.memory.copy() # Save current memory scope
+        self.memory.update(dict(zip(parameters, arguments))) # Add function arguments to memory
 
-        # Evaluate the function body
         result = None
         for expression in body:
             result = self.visit(expression)
 
-        # Restore the previous memory state
-        self.memory = previous_memory
+        self.memory = previous_memory # Restore previous scope
         return result
 
     def visitIfExpr(self, ctx):
         """Evaluate 'if' expressions."""
         condition = self.visit(ctx.expr())
+        branch = ctx.ifBranch(0) if condition else ctx.ifBranch(1)
 
-        if condition:
-            # Evaluate the 'then' branch
-            return self.visit(ctx.ifBranch(0))
-        
-        elif ctx.ifBranch(1): 
+        return self.visit(branch)
 
-            # Evaluate the 'else' branch if present
-            return self.visit(ctx.ifBranch(1))
-       
     def visitIfBeginExpr(self, ctx):
-        expressions = list(ctx.expr())
-        for expression in expressions:
+        """Evaluate 'begin' blocks in if branches."""
+        result = None
+        for expression in ctx.expr():
             result = self.visit(expression)
         return result
 
     def visitCondExpr(self, ctx):
         """Evaluate 'cond' expressions."""
-        cond_pairs = list(ctx.condPair())
-        else_branch = ctx.elseBranch()
-
-        for cond in cond_pairs:
+        for cond in ctx.condPair():
             condition = self.visit(cond.expr(0))
             if condition:
-                # Evaluate all expressions in the branch and return the last one
                 return [self.visit(expr) for expr in cond.expr()[1:]][-1]
-        
-        if else_branch:
-            # Evaluate the 'else' branch if present
-            return [self.visit(expr) for expr in else_branch.expr()][-1]
+
+        if ctx.elseBranch():
+            return [self.visit(expr) for expr in ctx.elseBranch().expr()][-1]
 
     def visitAndExpr(self, ctx):
         """Evaluate 'and' expressions."""
@@ -144,53 +128,49 @@ class SchemeVisitor(schemeVisitor):
         """Return the first element of a list."""
         lst = self.visit(ctx.expr())
         if not isinstance(lst, list):
-            raise ValueError(f"car expects a list, got {type(lst).__name__}")
+            raise ValueError(f"car expects a list, got {type(lst).__name__}.")
         if not lst:
-            raise ValueError("car expects a non-empty list")
+            raise ValueError("car expects a non-empty list.")
         return lst[0]
 
     def visitCdrExpr(self, ctx):
         """Return the list except for the first element."""
         lst = self.visit(ctx.expr())
+
         if not isinstance(lst, list):
-            raise ValueError(f"cdr expects a list, got {type(lst).__name__}")
+            raise ValueError(f"cdr expects a list, got {type(lst).__name__}.")
         if not lst:
-            raise ValueError("cdr expects a non-empty list")
+            raise ValueError("cdr expects a non-empty list.")
         return lst[1:]
 
     def visitConsExpr(self, ctx):
         """Add an element to the beginning of a list."""
         element = self.visit(ctx.expr(0))
         lst = self.visit(ctx.expr(1))
+
         if not isinstance(lst, list):
-            raise ValueError(f"cons expects a list, got {type(lst).__name__}")
+            raise ValueError(f"cons expects a list, got {type(lst).__name__}.")
         return [element] + lst
 
     def visitNullExpr(self, ctx):
         """Check if a list is empty."""
         lst = self.visit(ctx.expr())
+
         if not isinstance(lst, list):
-            raise ValueError(f"null? expects a list, got {type(lst).__name__}")
+            raise ValueError(f"null? expects a list, got {type(lst).__name__}.")
         return not lst
-    
+
     def visitLetExpr(self, ctx):
         """Evaluate 'let' expressions."""
-        # Create a new temporary memory scope
-        previous_memory = self.memory.copy()
+        previous_memory = self.memory.copy() # Save current memory scope
 
-        # Process bindings
         for binding in ctx.letBinding():
-            identifier = binding.ID().getText()  # Name of the variable
-            value = self.visit(binding.expr())   # Evaluate the value
-            self.memory[identifier] = value      # Add to the local memory
+            identifier = binding.ID().getText()
+            value = self.visit(binding.expr())
+            self.memory[identifier] = value
 
-        # Evaluate the body of the let expression
-        body = list(ctx.expr())
-        result = [self.visit(expression) for expression in body]
-
-        # Restore the previous memory
-        self.memory = previous_memory
-
+        result = [self.visit(expression) for expression in ctx.expr()]
+        self.memory = previous_memory # Restore previous scope
         return result
 
     def visitDisplayExpr(self, ctx):
@@ -200,25 +180,18 @@ class SchemeVisitor(schemeVisitor):
 
     def visitReadExpr(self, ctx):
         """Read user input."""
-        value = input().strip()  # Trim whitespace
+        value = input().strip()
 
-        # Handle quoted lists
         if value.startswith("'(") and value.endswith(")"):
             try:
                 return self.visit(parse_expression(value).expr())
             except Exception as e:
                 raise ValueError(f"Invalid list format: {value}") from e
 
-        # Handle numeric input
         try:
-            if "." in value:
-                return float(value)  # Convert to float if a dot is present
-            return int(value)  # Convert to int if no dot
+            return float(value) if "." in value else int(value)
         except ValueError:
-            pass  # Not a number, continue to treat as string
-
-        # Default to string
-        return value
+            return value
 
     def visitNewlineExpr(self, ctx):
         """Print a newline character."""
@@ -226,8 +199,7 @@ class SchemeVisitor(schemeVisitor):
 
     def visitQuotedListExpr(self, ctx):
         """Evaluate quoted list expressions."""
-        elements = [self.visit(expr) for expr in ctx.quotedList().literal()]
-        return elements
+        return [self.visit(expr) for expr in ctx.quotedList().literal()]
 
     def visitNumberExpr(self, ctx):
         """Evaluate number expressions."""

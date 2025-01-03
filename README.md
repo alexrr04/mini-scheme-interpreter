@@ -417,14 +417,16 @@ The interpreter supports the following types:
 The grammar for the _Mini Scheme_ language is defined in the `scheme.g4` file using _ANTLR_. The grammar includes the following rules:
 
 - `root`: The root rule that matches zero or more expressions.
-- `expr`: Matches various types of expressions, including definitions, function calls, conditionals, arithmetic operations, relational operations, list operations and literals.
+- `expr`: Matches various types of expressions, including definitions, function calls, conditionals, logical operations, arithmetic operations, relational operations, list operations, input/output operations, and literals.
 - `definition`: Matches function and constant definitions.
-- `literal`: Matches literals such as numbers, booleans, strings, identifiers and quoted lists.
-- `parameters`: Matches zero or more parameters for function definitions.
+- `ifBranch`: Matches branches for `if` expressions with and without begin.
 - `condPair`: Matches a pair of condition and expression for `cond` expressions.
+- `elseBranch`: Matches the else branch for `cond` expressions.
+- `parameters`: Matches zero or more parameters for function definitions.
 - `letBinding`: Matches variable bindings for `let` expressions.
 - `arOperator`: Matches arithmetic operators (`+`, `-`, `*`, `/`, `mod`).
 - `relOperator`: Matches relational operators (`<`, `>`, `<=`, `>=`, `=`, `<>`).
+- `literal`: Matches literals such as numbers, booleans, strings, identifiers, and quoted lists.
 - `quotedList`: Matches quoted lists.
 - `NUMBER`: Matches numbers (integers and floating-point numbers).
 - `BOOLEAN`: Matches boolean values (`#t`, `#f`).

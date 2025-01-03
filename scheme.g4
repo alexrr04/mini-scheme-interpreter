@@ -31,10 +31,10 @@ ifBranch: '(' 'begin' expr+ ')'                 # IfBeginExpr
         | expr                                  # IfSingleExpr
         ;              
 
-elseBranch: '(' 'else' expr+ ')'                
-          ;
-
 condPair: '(' expr expr+ ')';                       // (condition expression)
+
+elseBranch: '(' 'else' expr+ ')'                    // (else expression)     
+          ;
 
 parameters: ID*;                                    // Zero or more parameters
 

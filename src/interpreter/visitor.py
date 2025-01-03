@@ -1,5 +1,6 @@
 from interpreter.utilities import parse_expression, format_for_scheme
 from interpreter.builtins import define_builtins
+from interpreter.operators import ARITHMETIC_OPERATIONS, RELATIONAL_OPERATIONS
 from generated.schemeVisitor import schemeVisitor
 from functools import reduce
 
@@ -72,15 +73,15 @@ class SchemeVisitor(schemeVisitor):
 
     def visitIfExpr(self, ctx):
         """Evaluate 'if' expressions."""
-        condition = self.visit(ctx.expr(0))
+        condition = self.visit(ctx.expr())
         if condition:
-            true_branch = list(ctx.trueBranch)
             # Evaluate all expressions in the true branch and return the last one
-            return [self.visit(expression) for expression in true_branch][-1]
+            true_branch = ctx.trueBranch()
+            return [self.visit(expression) for expression in true_branch.expr()][-1]
         
-        false_branch = list(ctx.falseBranch)
         # Evaluate all expressions in the false branch and return the last one
-        return [self.visit(expression) for expression in false_branch][-1]
+        false_branch = ctx.falseBranch()
+        return [self.visit(expression) for expression in false_branch.expr()][-1]
     
     def visitCondExpr(self, ctx):
         """Evaluate 'cond' expressions."""
@@ -108,32 +109,21 @@ class SchemeVisitor(schemeVisitor):
         operator = ctx.getChild(1).getText()
         expressions = [self.visit(expr) for expr in ctx.expr()]
 
-        operations = {
-            "+": lambda acc, y: acc + y,
-            "-": lambda acc, y: acc - y,
-            "*": lambda acc, y: acc * y,
-            "/": lambda acc, y: acc // y,
-            "mod": lambda acc, y: acc % y,
-        }
+        if operator not in ARITHMETIC_OPERATIONS:
+            raise SyntaxError(f"Unknown operator: {operator}")
 
-        return reduce(operations[operator], expressions)
+        return reduce(ARITHMETIC_OPERATIONS[operator], expressions)
 
     def visitRelationalOperationExpr(self, ctx):
         """Evaluate relational operations."""
         operator = ctx.getChild(1).getText()
         expressions = [self.visit(expr) for expr in ctx.expr()]
 
-        operations = {
-            "<": lambda x, y: x < y,
-            ">": lambda x, y: x > y,
-            "<=": lambda x, y: x <= y,
-            ">=": lambda x, y: x >= y,
-            "=": lambda x, y: x == y,
-            "<>": lambda x, y: x != y,
-        }
+        if operator not in RELATIONAL_OPERATIONS:
+            raise SyntaxError(f"Unknown operator: {operator}")
 
         return all(
-            operations[operator](expressions[i], expressions[i + 1])
+            RELATIONAL_OPERATIONS[operator](expressions[i], expressions[i + 1])
             for i in range(len(expressions) - 1)
         )
 

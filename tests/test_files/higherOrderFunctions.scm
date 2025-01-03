@@ -1,4 +1,4 @@
-(define (aply-twice f x) 
+(define (apply-twice f x) 
     (f (f x))
 )
 
@@ -19,9 +19,9 @@
 )
 
 (define (main)
-    (define lst '(1 2 3 4))
-    (display (aply-twice add1 5))
+    (display (apply-twice add1 5))
     (newline)
+    (define lst '(1 2 3 4))
     (display (map doble lst))
     (newline)
     (display (filter parell lst))

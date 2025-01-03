@@ -7,9 +7,9 @@ from functools import reduce
 class SchemeVisitor(schemeVisitor):
     """Visitor class for evaluating Scheme expressions."""
 
-    def __init__(self, terminal_interpreter=True):
+    def __init__(self, interactive_mode=True):
         self.memory = {}
-        self.terminal_interpreter = terminal_interpreter # Flag to determine output behavior
+        self.interactive_mode = interactive_mode # Flag to determine output behavior
 
         # Add built-in functions to memory
         builtins = define_builtins()
@@ -22,7 +22,7 @@ class SchemeVisitor(schemeVisitor):
         top_level_expressions = list(ctx.getChildren())
         for expression in top_level_expressions:
             result = self.visit(expression)
-            if self.terminal_interpreter and result is not None:
+            if self.interactive_mode and result is not None:
                 print(format_for_scheme(result))
 
     def visitConstantDefinitionExpr(self, ctx):

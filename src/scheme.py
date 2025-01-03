@@ -11,7 +11,7 @@ def main():
     args = parser.parse_args()
 
     if args.file:
-        visitor = SchemeVisitor(terminal_interpreter=False)
+        visitor = SchemeVisitor(interactive_mode=False)
         with open(args.file, "r") as f:
             source_code = f.read()
         run_program(source_code, visitor)
@@ -21,7 +21,7 @@ def main():
         else:
             print("Error: No main function defined.")
     else:
-        visitor = SchemeVisitor(terminal_interpreter=True)
+        visitor = SchemeVisitor(interactive_mode=True)
         while True:
             source_code = input("mini-scheme> ")
             run_program(source_code, visitor)

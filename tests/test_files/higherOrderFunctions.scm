@@ -10,6 +10,10 @@
     (* x 2)
 )
 
+(define (triple x)
+    (* x 3)
+)
+
 (define (parell x)
     (= (mod x 2) 0)
 )
@@ -21,4 +25,6 @@
     (display (map doble lst))
     (newline)
     (display (filter parell lst))
+    (newline)
+    (display (filter parell (map triple lst)))
 )

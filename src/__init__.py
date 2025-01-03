@@ -1,3 +1,4 @@
+# src/__init__.py
 """
-The src package contains the main implementation of the Mini Scheme Interpreter.
+Source package for the Mini Scheme Interpreter.
 """

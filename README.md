@@ -25,7 +25,7 @@ The **Mini Scheme Interpreter** is a minimal implementation of a _Scheme_ progra
 
    Windows users may need some additional steps to install _ANTLR_: [antlr4-tools-reference](https://github.com/antlr/antlr4-tools)
 
-2. Build the project (generate _Python_ files from _ANTLR_ grammar):
+2. Build the project (generate the necessary _Python_ files from _ANTLR_ grammar):
 
    ```bash
    make

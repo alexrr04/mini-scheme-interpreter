@@ -6,8 +6,7 @@
     (newline)
     (display (square (+ 2 3))) ; 25
     (newline)
-    (display (if (null? '(1 2 3))
-                "Empty"
+    (display (if (not (null? '(1 2 3)))
                 (cons (square 2) x))) ; (4 4 9)
     (newline)
 )

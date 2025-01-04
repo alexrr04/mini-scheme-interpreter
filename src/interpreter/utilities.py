@@ -16,8 +16,10 @@ def parse_expression(expr_string):
     """Parse a Scheme expression string into a parse tree."""
     input_stream = InputStream(expr_string)
     lexer = schemeLexer(input_stream)
+    lexer.removeErrorListeners()
     token_stream = CommonTokenStream(lexer)
     parser = schemeParser(token_stream)
+    parser.removeErrorListeners()
     return parser
 
 
@@ -28,4 +30,6 @@ def run_program(source_code, visitor):
     if parser.getNumberOfSyntaxErrors() == 0:
         visitor.visit(tree)
     else:
-        print(f"Syntax errors found: {parser.getNumberOfSyntaxErrors()}")
+        print(f"{parser.getNumberOfSyntaxErrors()} syntax errors found.")
+        print(tree.toStringTree(recog=parser))
+        exit(1)

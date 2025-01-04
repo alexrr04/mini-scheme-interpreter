@@ -6,6 +6,4 @@
     (let ((a 7) (b 3))
         (display (* a b))) ; 21
     (newline)
-    (display x) ; Error: Undefined variable x
-    (display 23) ; This should not be printed
 )

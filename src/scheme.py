@@ -19,7 +19,8 @@ def main():
         if "main" in visitor.memory:
             run_program("(main)", visitor)
         else:
-            print("Error: No main function defined.")
+            print(f"Error: No main function defined in file {args.file}")
+            exit(1)
     else:
         visitor = SchemeVisitor(interactive_mode=True)
         while True:

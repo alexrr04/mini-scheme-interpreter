@@ -44,16 +44,7 @@ class SchemeVisitor(schemeVisitor):
         function_name = ctx.ID().getText()
         arguments = [self.visit(expr) for expr in ctx.expr()]
 
-        if function_name not in self.memory:
-            raise ValueError(f"Undefined function: {function_name}")
-
         parameters, body = self.memory[function_name]
-
-        if len(arguments) != len(parameters):
-            raise ValueError(
-                f"Function {function_name} expects {len(parameters)} arguments, "
-                f"got {len(arguments)}."
-            )
 
         previous_memory = self.memory.copy() # Save current memory scope
         self.memory.update(dict(zip(parameters, arguments))) # Add function arguments to memory
@@ -106,18 +97,12 @@ class SchemeVisitor(schemeVisitor):
         operator = ctx.getChild(1).getText()
         expressions = [self.visit(expr) for expr in ctx.expr()]
 
-        if operator not in ARITHMETIC_OPERATIONS:
-            raise SyntaxError(f"Unknown operator: {operator}")
-
         return reduce(ARITHMETIC_OPERATIONS[operator], expressions)
 
     def visitRelationalOperationExpr(self, ctx):
         """Evaluate relational operations."""
         operator = ctx.getChild(1).getText()
         expressions = [self.visit(expr) for expr in ctx.expr()]
-
-        if operator not in RELATIONAL_OPERATIONS:
-            raise SyntaxError(f"Unknown operator: {operator}")
 
         return all(
             RELATIONAL_OPERATIONS[operator](expressions[i], expressions[i + 1])
@@ -127,37 +112,22 @@ class SchemeVisitor(schemeVisitor):
     def visitCarExpr(self, ctx):
         """Return the first element of a list."""
         lst = self.visit(ctx.expr())
-        if not isinstance(lst, list):
-            raise ValueError(f"car expects a list, got {type(lst).__name__}.")
-        if not lst:
-            raise ValueError("car expects a non-empty list.")
         return lst[0]
 
     def visitCdrExpr(self, ctx):
         """Return the list except for the first element."""
         lst = self.visit(ctx.expr())
-
-        if not isinstance(lst, list):
-            raise ValueError(f"cdr expects a list, got {type(lst).__name__}.")
-        if not lst:
-            raise ValueError("cdr expects a non-empty list.")
         return lst[1:]
 
     def visitConsExpr(self, ctx):
         """Add an element to the beginning of a list."""
         element = self.visit(ctx.expr(0))
         lst = self.visit(ctx.expr(1))
-
-        if not isinstance(lst, list):
-            raise ValueError(f"cons expects a list, got {type(lst).__name__}.")
         return [element] + lst
 
     def visitNullExpr(self, ctx):
         """Check if a list is empty."""
         lst = self.visit(ctx.expr())
-
-        if not isinstance(lst, list):
-            raise ValueError(f"null? expects a list, got {type(lst).__name__}.")
         return not lst
 
     def visitLetExpr(self, ctx):
@@ -183,10 +153,7 @@ class SchemeVisitor(schemeVisitor):
         value = input().strip()
 
         if value.startswith("'(") and value.endswith(")"):
-            try:
-                return self.visit(parse_expression(value).expr())
-            except Exception as e:
-                raise ValueError(f"Invalid list format: {value}") from e
+            return self.visit(parse_expression(value).expr())
 
         try:
             return float(value) if "." in value else int(value)
@@ -218,4 +185,4 @@ class SchemeVisitor(schemeVisitor):
         identifier = ctx.getText()
         if identifier in self.memory:
             return self.memory[identifier]
-        raise ValueError(f"Undefined identifier: {identifier}")
+

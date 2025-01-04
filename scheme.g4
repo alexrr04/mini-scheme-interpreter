@@ -64,3 +64,4 @@ ID: [a-zA-Z_][a-zA-Z0-9_\-]*;                       // Matches identifiers: lett
 
 COMMENT: ';' ~[\r\n]* -> skip;                      // Matches comments starting with ';' and skips them
 WS: [ \t\r\n]+ -> skip;                             // Skip whitespace
+LEXICAL_ERROR: . ;                                  // Catch-all rule for lexical errors

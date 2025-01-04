@@ -65,7 +65,7 @@ Hello, world!
 
 Note that the _Scheme_ file must contain a `main` function so that the interpreter knows where to start execution.
 
-#### Run Tests
+#### Run Predefined Tests
 
 The folder `tests/test_files` contains a set of tests to check the interpreter's functionality.
 
@@ -80,7 +80,13 @@ python3 tests/test_runner.py
 To run a specific test:
 
 ```bash
-python3 tests/test_runner.py tests/test_files/helloWorld.scm
+python3 tests/test_runner.py tests/test_files/testName.scm
+```
+
+You can use as the input the `.in` file of the test and compare the output with the `.out` file (all inside the `tests/test_files` directory):
+
+```bash
+python3 tests/test_runner.py tests/test_files/testName.scm < tests/test_files/testName.in
 ```
 
 ---

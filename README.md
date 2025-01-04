@@ -570,4 +570,10 @@ There is also a function to run _Scheme_ programs:
 
 ### Error Handling
 
+The interpreter only reports syntax errors. If syntax errors are found, the interpreter prints how many errors were found and the parser tree with the errors. This is done by using the `antlr4` functions `getNumberOfSyntaxErrors` and `parser.root().toStringTree(recog=parser)`.
+
+Apart from syntax errors, the interpreter also reports if there is no `main` function defined in the program, if running a `.scm` file.
+
+Other types of errors are not handled by the interpreter.
+
 ---

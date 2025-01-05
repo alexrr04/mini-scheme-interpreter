@@ -14,3 +14,6 @@ build
 
 # OS-specific files
 .DS_Store
+
+# Ignore delivery zip
+minischeme_alex.rodriguez.r.zip

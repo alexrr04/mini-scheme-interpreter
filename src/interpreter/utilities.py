@@ -1,6 +1,6 @@
 from antlr4 import InputStream, CommonTokenStream
-from generated.schemeLexer import schemeLexer
-from generated.schemeParser import schemeParser
+from build.schemeLexer import schemeLexer
+from build.schemeParser import schemeParser
 
 
 def format_for_scheme(value):

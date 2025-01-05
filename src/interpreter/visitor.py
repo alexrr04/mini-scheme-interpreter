@@ -1,7 +1,7 @@
 from interpreter.utilities import parse_expression, format_for_scheme
 from interpreter.builtins import define_builtins
 from interpreter.operators import ARITHMETIC_OPERATIONS, RELATIONAL_OPERATIONS
-from generated.schemeVisitor import schemeVisitor
+from build.schemeVisitor import schemeVisitor
 from functools import reduce
 
 

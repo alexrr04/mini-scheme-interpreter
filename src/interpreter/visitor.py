@@ -23,6 +23,10 @@ class SchemeVisitor(schemeVisitor):
         """Return the current scope of the symbol table."""
         return self.symbol_table[-1]
 
+    def global_scope(self):
+        """Return the global scope of the symbol table."""
+        return self.symbol_table[0]
+
     def push_scope(self):
         """Push a new scope onto the symbol table."""
         self.symbol_table.append({})
@@ -33,6 +37,15 @@ class SchemeVisitor(schemeVisitor):
             self.symbol_table.pop()
         else:
             print("Error: Attempted to pop the global scope.")
+
+    def find_symbol(self, identifier):
+        """Find a symbol in the symbol table."""
+
+        # Start from the top of the stack and search downwards
+        for scope in reversed(self.symbol_table):
+            if identifier in scope:
+                return scope[identifier]
+        return None
 
     def visitRoot(self, ctx):
         """Visit the root node."""
@@ -77,10 +90,9 @@ class SchemeVisitor(schemeVisitor):
             function_name = ctx.ID().getText()
             arguments = [self.visit(expr) for expr in ctx.expr()]
 
-            for scope in reversed(self.symbol_table):
-                if function_name in scope:
-                    parameters, body = scope[function_name]
-                    break
+            find_symbol = self.find_symbol(function_name)
+            if find_symbol is not None:
+                parameters, body = find_symbol
             else:
                 raise ValueError(f"Undefined function: '{function_name}'")
             
@@ -242,12 +254,11 @@ class SchemeVisitor(schemeVisitor):
         try:
             identifier = ctx.getText()
 
-            # Look for the identifier in the current scope stack
-            for scope in reversed(self.symbol_table):
-                if identifier in scope:
-                    return scope[identifier]
-                
-            raise ValueError(f"Undefined identifier: '{identifier}'")
+            find_symbol = self.find_symbol(identifier)
+            if find_symbol is not None:
+                return find_symbol
+            else:
+                raise ValueError(f"Undefined identifier: '{identifier}'")
         
         except ValueError as e:
             print(f"Error evaluating identifier '{ctx.getText()}': {e}")

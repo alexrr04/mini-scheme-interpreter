@@ -53,9 +53,9 @@ def run_all_tests(test_dir, interpreter="src/scheme.py"):
     passed, failed = 0, 0
 
     for test_file in test_files:
-        # Derive corresponding .in and .out file paths
+        # Derive corresponding .inp and .out file paths
         base_name = os.path.splitext(test_file)[0]
-        input_file = os.path.join(test_dir, f"{base_name}.in")
+        input_file = os.path.join(test_dir, f"{base_name}.inp")
         output_file = os.path.join(test_dir, f"{base_name}.out")
         scheme_file = os.path.join(test_dir, test_file)
 
@@ -66,7 +66,7 @@ def run_all_tests(test_dir, interpreter="src/scheme.py"):
             else:
                 failed += 1
         else:
-            print(f"SKIP: {scheme_file} (missing .in or .out file)")
+            print(f"SKIP: {scheme_file} (missing .inp or .out file)")
 
     print(f"\nSummary: {passed} passed, {failed} failed")
 
@@ -81,11 +81,11 @@ def run_single_test(scheme_file, interpreter="src/scheme.py"):
     """
     base_name = os.path.splitext(os.path.basename(scheme_file))[0]
     test_dir = os.path.dirname(scheme_file)
-    input_file = os.path.join(test_dir, f"{base_name}.in")
+    input_file = os.path.join(test_dir, f"{base_name}.inp")
     output_file = os.path.join(test_dir, f"{base_name}.out")
 
     if not os.path.exists(input_file) or not os.path.exists(output_file):
-        print(f"Missing .in or .out file for {scheme_file}")
+        print(f"Missing .inp or .out file for {scheme_file}")
         return
 
     if run_test(scheme_file, input_file, output_file, interpreter):

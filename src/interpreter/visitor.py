@@ -10,14 +10,27 @@ class SchemeVisitor(schemeVisitor):
 
     def __init__(self, interactive_mode=True):
         """Initialize the visitor with optional interactive mode."""
-        self.memory = {}
-        self.interactive_mode = interactive_mode  # Output behavior flag
+        self.symbol_table = [{}]  # Stack of dictionaries for symbol table
+        self.interactive_mode = interactive_mode  # Flag indicating interactive mode or .scm file mode
 
         # Add built-in functions to memory
         builtins = define_builtins()
         for name, (params, body_string) in builtins.items():
             body = parse_expression(body_string).expr()
-            self.memory[name] = (params, [body])
+            self.current_scope()[name] = (params, [body])
+
+    def current_scope(self):
+        """Return the current scope of the symbol table."""
+        return self.symbol_table[-1]
+
+    def push_scope(self):
+        """Push a new scope onto the symbol table."""
+        self.symbol_table.append({})
+
+    def pop_scope(self):
+        """Pop the current scope from the symbol table."""
+        if len(self.symbol_table) > 1:
+            self.symbol_table.pop()
 
     def visitRoot(self, ctx):
         """Visit the root node."""
@@ -30,30 +43,33 @@ class SchemeVisitor(schemeVisitor):
         """Handle 'define' for constants."""
         identifier = ctx.ID().getText()
         value = self.visit(ctx.expr())
-        self.memory[identifier] = value
+        self.current_scope()[identifier] = value
 
     def visitFunctionDefinitionExpr(self, ctx):
         """Handle 'define' for functions."""
         function_name = ctx.ID().getText()
         parameters = [param.getText() for param in ctx.parameters().ID()]
         body = list(ctx.expr())
-        self.memory[function_name] = (parameters, body)
+        self.current_scope()[function_name] = (parameters, body)
 
     def visitFunctionCallExpr(self, ctx):
         """Evaluate function calls."""
         function_name = ctx.ID().getText()
         arguments = [self.visit(expr) for expr in ctx.expr()]
 
-        parameters, body = self.memory[function_name]
+        for scope in reversed(self.symbol_table):
+            if function_name in scope:
+                parameters, body = scope[function_name]
+                break
 
-        previous_memory = self.memory.copy() # Save current memory scope
-        self.memory.update(dict(zip(parameters, arguments))) # Add function arguments to memory
+        self.push_scope()
+        self.current_scope().update(dict(zip(parameters, arguments)))
 
         result = None
         for expression in body:
             result = self.visit(expression)
 
-        self.memory = previous_memory # Restore previous scope
+        self.pop_scope()
         return result
 
     def visitIfExpr(self, ctx):
@@ -132,15 +148,15 @@ class SchemeVisitor(schemeVisitor):
 
     def visitLetExpr(self, ctx):
         """Evaluate 'let' expressions."""
-        previous_memory = self.memory.copy() # Save current memory scope
+        self.push_scope()  # Create a new scope for the 'let' expression
 
         for binding in ctx.letBinding():
             identifier = binding.ID().getText()
             value = self.visit(binding.expr())
-            self.memory[identifier] = value
+            self.current_scope()[identifier] = value
 
         result = [self.visit(expression) for expression in ctx.expr()]
-        self.memory = previous_memory # Restore previous scope
+        self.pop_scope()  # Remove the scope after evaluating the 'let' expression
         return result
 
     def visitDisplayExpr(self, ctx):
@@ -183,6 +199,9 @@ class SchemeVisitor(schemeVisitor):
     def visitIdentifierExpr(self, ctx):
         """Evaluate identifiers."""
         identifier = ctx.getText()
-        if identifier in self.memory:
-            return self.memory[identifier]
+
+        # Look for the identifier in the current scope stack
+        for scope in reversed(self.symbol_table):
+            if identifier in scope:
+                return scope[identifier]
 

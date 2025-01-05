@@ -16,7 +16,7 @@ def main():
             source_code = f.read()
         run_program(source_code, visitor)
 
-        if "main" in visitor.memory:
+        if "main" in visitor.current_scope():
             run_program("(main)", visitor)
         else:
             print(f"Error: No main function defined in file {args.file}")

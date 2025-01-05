@@ -40,7 +40,6 @@ class SchemeVisitor(schemeVisitor):
 
     def find_symbol(self, identifier):
         """Find a symbol in the symbol table."""
-
         # Start from the top of the stack and search downwards
         for scope in reversed(self.symbol_table):
             if identifier in scope:

@@ -510,40 +510,68 @@ The interpreter follows the following execution flow:
 
 ### Memory Management
 
-The interpreter uses a symbol table to store the values of variables and functions. The symbol table is implemented as a dictionary, named as `memory`, that maps variable names to their values. If the variable is a function, the value is a tuple containing the function parameters, if any, and the function body as a list of expressions.
+The interpreter uses a symbol table to store the values of variables and functions. The symbol table is implemented as a **stack of dictionaries**, where each level of the stack represents a memory scope.
+
+The stack is implemented as an array, and each element is a dictionary that maps variable names to their values. When a new scope is created, a new dictionary is pushed onto the stack. When the scope is finished, the dictionary is popped from the stack.
+If the variable is a function, the value is a tuple containing the function parameters, if any, and the function body as a list of expressions.
+
+To simplify and enhance code readability, the `visitor` class includes a set of methods to interact with the symbol table:
+
+- `current_scope(self)`: Returns the current scope dictionary.
+- `global_scope(self)`: Returns the global scope dictionary, which is the first element of the stack array.
+- `push_scope(self)`: Creates a new scope by pushing an empty dictionary onto the stack.
+- `pop_scope(self)`: Removes the current scope by popping the last dictionary from the stack.
 
 ```python
 # Symbol table to store variables and functions
-self.memory = {}
+self.symbol_table = [{}]
 
 # Example of a variable definition in the symbol table
-self.memory["x"] = 10
+self.current_scope()["x"] = 10
 
 # Example of a function definition in the symbol table
-self.memory["square"] = (["x"], ["*", "x", "x"])
+self.current_scope()["square"] = (["x"], ["*", "x", "x"])
 ```
-
-`map` and `filter` functions are initially defined in the symbol table as well so that they can work in the same way dynamic functions do and save having to modify the grammar or the interpreter.
 
 #### Memory Management for Local Bindings
 
-When a `let` expression is evaluated, a new scope is created with the local bindings. The interpreter uses the same symbol table to store the local bindings, but it keeps a reference to the previous scope so that it can be restored when the `let` expression is finished.
+When a `let` expression is evaluated, a new scope is created with the local bindings. The interpreter uses the same symbol table to store the local bindings, but it pushes a new dictionary onto the stack to store them. After evaluating the body of the `let` expression, the dictionary is popped from the stack to restore the previous memory.
 
 ```python
 # Copy the current memory to restore it later
-previous_memory = self.memory.copy()
+self.push_scope()
 
 # add local bindings to the symbol table
-self.memory["local_binding_id"] = local_binding_value
+self.current_scope()["local_binding_id"] = local_binding_value
 
 # evaluate the body of the let expression
 ...
 
 # restore the previous memory when the let expression is finished
-self.memory = previous_memory
+self.pop_scope()
 ```
 
-This way, the memory management is centralized in the interpreter and the symbol table is used to store both global and local bindings.
+To use functions or variables defined in an outer scope, the interpreter searches the symbol table from the current scope to the global scope by calling the `find_symbol` method. If the variable or function is not found, the method returns `None` so that the caller can handle the return itself.
+
+```python
+def find_symbol(self, identifier):
+    """Find a symbol in the symbol table."""
+    # Start from the top of the stack and search downwards
+    for scope in reversed(self.symbol_table):
+        if identifier in scope:
+            return scope[identifier]
+    return None
+```
+
+#### Built-in Functions
+
+The interpreter includes two built-in functions: `map` and `filter`. These functions are defined in the `builtins.py` file and are added to the symbol table when the interpreter is initialized.
+
+Both functions are defined with _Scheme_ syntax and are implemented using the interpreter's visitor methods.
+
+To store the built-in functions in the symbol table, the interpreter uses the same mechanism as for user-defined functions. The functions are stored as tuples containing the function parameters and the function body as a list of expressions, and they are added to the global scope of the symbol table.
+
+All this process is done in the **\_init\_** method of the visitor class.
 
 ### Helper Functions
 
@@ -570,10 +598,42 @@ There is also a function to run _Scheme_ programs:
 
 ### Error Handling
 
-The interpreter only reports syntax errors. If syntax errors are found, the interpreter prints how many errors were found and the parser tree with the errors. This is done by using the `antlr4` functions `getNumberOfSyntaxErrors` and `parser.root().toStringTree(recog=parser)`.
+The interpreter handles syntax errors and runtime errors. Syntax errors are reported by _ANTLR_ when the input does not match the grammar rules. Runtime errors are reported when an error occurs during the evaluation of an expression, such as an undefined variable or function, or a constant redefinition.
 
-Apart from syntax errors, the interpreter also reports if there is no `main` function defined in the program, if running a `.scm` file.
+#### Syntax Errors
 
-Other types of errors are not handled by the interpreter.
+If syntax errors are found, the interpreter prints how many errors were found and the parser tree with the errors. This is done by using the `antlr4` functions `getNumberOfSyntaxErrors` and `parser.root().toStringTree(recog=parser)`.
+
+```python
+if parser.getNumberOfSyntaxErrors() == 0:
+    visitor.visit(tree)
+else:
+    print(f"{parser.getNumberOfSyntaxErrors()} syntax errors found.")
+    print(tree.toStringTree(recog=parser))
+    exit(1)
+```
+
+After the prints, the interpreter exits with an error code.
+
+#### Runtime Errors
+
+Runtime errors are reported when an error occurs during the evaluation of an expression.
+
+The interpreter reports the following runtime errors:
+
+- **Undefined variable**: When trying to access a variable that has not been defined.
+- **Undefined function**: When trying to call a function that has not been defined.
+- **Constant redefinition**: When trying to redefine a constant.
+- **Function redefinition**: When trying to redefine a function.
+- **Local binding redefinition**: When trying to redefine a local binding.
+- **Invalid number of arguments**: When calling a function with the wrong number of arguments.
+
+These errors are handled making use of try/except blocks with custom error messages to avoid the interpreter crashing while running a program.
+
+#### Main Function Not Found
+
+Apart from the other errors, the interpreter also reports if there is no `main` function defined in the global scope of the program, if running a `.scm` file.
+
+Other types of errors have an undefined behavior and are not handled by the interpreter.
 
 ---

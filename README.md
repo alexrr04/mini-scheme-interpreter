@@ -89,7 +89,7 @@ Note that the _Scheme_ file must contain a `main` function so that the interpret
 
 The folder `tests/test_files` contains a set of tests to check the interpreter's functionality.
 
-Each test consists of a `.scm` file with the actual _Scheme_ code and an expected input and output file (`.in`, `.out`), containing the input and expected output of the test, respectively.
+Each test consists of a `.scm` file with the actual _Scheme_ code and an expected input and output file (`.inp`, `.out`), containing the input and expected output of the test, respectively.
 
 To run all tests inside the `tests/test_files` directory:
 
@@ -103,10 +103,10 @@ To run a specific test:
 python3 tests/test_runner.py tests/test_files/testName.scm
 ```
 
-You can use as the input the `.in` file of the test and compare the output with the `.out` file (all inside the `tests/test_files` directory):
+You can use as the input the `.inp` file of the test and compare the output with the `.out` file (all inside the `tests/test_files` directory):
 
 ```bash
-python3 tests/test_runner.py tests/test_files/testName.scm < tests/test_files/testName.in
+python3 tests/test_runner.py tests/test_files/testName.scm < tests/test_files/testName.inp
 ```
 
 The current tests cover a wide range of the interpreter main features, including arithmetic operations, conditionals, recursion, lists, higher-order functions, and input/output operations.

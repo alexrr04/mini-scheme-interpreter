@@ -1,5 +1,16 @@
 def define_builtins():
-    """Returns the built-in function definitions of the interpreter (map and filter)."""
+    """
+    Define and return built-in functions for the Mini Scheme interpreter.
+
+    This function provides the definitions for `map` and `filter` as Scheme-like
+    expressions. These definitions are returned as a dictionary where the keys 
+    are the function names (`map` and `filter`) and the values are tuples containing 
+    the parameters and the function body as a string.
+
+    Returns:
+        dict: A dictionary mapping built-in function names (`map` and `filter`) 
+        to their parameter lists and body strings.
+    """
     params = ['f', 'lst']
 
     # Map function body as a Scheme expression

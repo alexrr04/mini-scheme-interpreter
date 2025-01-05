@@ -21,7 +21,9 @@ This project was created as a University assignment for the _Programming Languag
 1. Install dependencies:
 
    ```bash
-   pip install antlr4-tools-antlr4
+   pip install antlr4-tools
+   antlr4
+
    pip install antlr4-python3-runtime
    ```
 

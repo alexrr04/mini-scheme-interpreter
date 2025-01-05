@@ -2,7 +2,9 @@
 
 ## Description
 
-The **Mini Scheme Interpreter** is a minimal implementation of a _Scheme_ programming language interpreter written in _Python_, using _ANTLR_ for grammar definition and parsing. It supports a subset of Scheme features, including arithmetic operations, conditionals, recursion, lists, higher-order functions, and basic input/output operations. This project was created as a University assignment for the _Programming Languages_ course of the _Informatics Engineering_ degree at _UPC (Universitat Politècnica de Catalunya)_.
+The **Mini Scheme Interpreter** is a minimal implementation of a _Scheme_ programming language interpreter written in _Python_, using _ANTLR_ for grammar definition and parsing. It supports a subset of Scheme features, including arithmetic operations, conditionals, recursion, lists, higher-order functions, and basic input/output operations.
+
+This project was created as a University assignment for the _Programming Languages_ course of the _Informatics Engineering_ degree at _UPC (Universitat Politècnica de Catalunya)_.
 
 ---
 
@@ -29,6 +31,12 @@ The **Mini Scheme Interpreter** is a minimal implementation of a _Scheme_ progra
 
    ```bash
    make
+   ```
+
+   You can optionally run the following command to clean the generated files:
+
+   ```bash
+   make clean
    ```
 
 ### Running the Interpreter

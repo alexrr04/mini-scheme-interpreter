@@ -9,13 +9,16 @@ def execute_file(file_path):
 
     Args:
         file_path (str): Path to the Scheme program file.
+
+    First, the program is read from the file and executed in dry-run mode to populate the symbol table.
+    Then, the main function is executed if it is defined in the program.
     """
     visitor = SchemeVisitor(interactive_mode=False)
 
     with open(file_path, "r") as f:
         source_code = f.read()
 
-    run_program(source_code, visitor)
+    run_program(source_code, visitor, dry_run=True)
 
     if "main" in visitor.global_scope():
         run_program("(main)", visitor)

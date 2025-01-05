@@ -40,13 +40,16 @@ def parse_expression(expr_string):
     return parser
 
 
-def run_program(source_code, visitor):
+def run_program(source_code, visitor, dry_run=False):
     """
     Run a Scheme program.
 
     Args:
         source_code (str): The source code of the Scheme program to execute.
         visitor (SchemeVisitor): An instance of the Scheme visitor to evaluate the parse tree.
+        
+        dry_run (bool): If True, the program will be parsed and the symbol table will be populated, 
+         but expressions will not be executed.
 
     Behavior:
         - Parses the source code into a parse tree.
@@ -57,7 +60,13 @@ def run_program(source_code, visitor):
     parser = parse_expression(source_code)
     tree = parser.root()
     if parser.getNumberOfSyntaxErrors() == 0:
-        visitor.visit(tree)
+        if dry_run:
+            # Populate the symbol table without executing expressions
+            for child in tree.getChildren():
+                if hasattr(child, 'accept') and child.getChild(1).getText() == "define":
+                    child.accept(visitor)
+        else:
+            visitor.visit(tree)
     else:
         print(f"{parser.getNumberOfSyntaxErrors()} syntax errors found.")
         print(tree.toStringTree(recog=parser))

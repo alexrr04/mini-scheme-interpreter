@@ -97,6 +97,12 @@ You can use as the input the `.in` file of the test and compare the output with 
 python3 tests/test_runner.py tests/test_files/testName.scm < tests/test_files/testName.in
 ```
 
+The current tests cover a wide range of the interpreter main features, including arithmetic operations, conditionals, recursion, lists, higher-order functions, and input/output operations.
+
+Moreover, the tests includes edge cases such as nested expressions and inneficient recursive functions, as well as the use of the built-in functions `map` and `filter`.
+
+There is also a test to check that the interpreter acts correctly when there is no `main` function defined in the global scope of the program.
+
 ---
 
 ## Features
@@ -128,7 +134,7 @@ python3 tests/test_runner.py tests/test_files/testName.scm < tests/test_files/te
   (<> 5 3) ; Result: #t
   ```
 
-### Coments
+### Comments
 
 Comments defined by a semicolon `;` are ignored by the interpreter.
 
@@ -138,7 +144,7 @@ Comments defined by a semicolon `;` are ignored by the interpreter.
   ; This is a comment
   ```
 
-### Definning functions
+### Defining functions
 
 It is possible to define functions using the `define` keyword. Functions can have multiple parameters or none at all.
 
@@ -155,7 +161,7 @@ It is possible to define functions using the `define` keyword. Functions can hav
   (square 5) ; Result: 25
   ```
 
-### Definning constants
+### Defining constants
 
 It is possible to define constants using the `define` keyword. Constants are immutable and can be used as variables.
 
@@ -249,7 +255,7 @@ It is possible to define constants using the `define` keyword. Constants are imm
   - `cons`: Adds an element to the beginning of a list.
 
     ```scheme
-    (cons 0 lst) ; Result: (1 2 3)
+    (cons 0 lst) ; Result: (0 1 2 3)
     (cons "mini" (cons "scheme" '())) ; Result: (mini scheme)
     ```
 
@@ -295,7 +301,7 @@ For instance:
 ```scheme
 (let ((x 10)
       (y 5))
-  (+ x y)) ; Result: 10
+  (+ x y)) ; Result: 15
 ```
 
 ### Input/Output
@@ -325,7 +331,7 @@ The interpreter supports the basic input/output operations which allow reading f
   This will output:
 
   ```plaintext
-  Here comes a new line:
+  Here comes a new line...
   This is a new line
   ```
 
@@ -451,6 +457,8 @@ The grammar for the _Mini Scheme_ language is defined in the `scheme.g4` file us
 - `COMMENT`: Matches comments starting with `;` and skips them.
 - `WS`: Skips whitespace characters.
 
+With the current grammar, it is relatively easy to address the different types of expressions and operations supported by the language from the visitor implementation because for complex rules such as `if` and `cond`, the visitor can handle each branch separately and can be referred to by the visitor methods with commands like `ctx.ifBranch()` or `ctx.condPair()`.
+
 ---
 
 ## Implementation
@@ -506,6 +514,7 @@ The interpreter follows the following execution flow:
 1. **Parsing**:
 
    - The input is parsed using the `parse_expression` function to obtain a parse tree.
+   - If the interpreter is run with a file as an argument, the file is first traversed in **dry-run mode** to populate the symbol table with the global functions and constants defined in the file. This is done by checking if the root nodes are definitions and adding them to the symbol table.
    - The parse tree is traversed using the visitor pattern to evaluate each expression.
 
 2. **Evaluation**:
@@ -651,5 +660,12 @@ These errors are handled making use of try/except blocks with custom error messa
 Apart from the other errors, the interpreter also reports if there is no `main` function defined in the global scope of the program, if running a `.scm` file.
 
 Other types of errors have an undefined behavior and are not handled by the interpreter.
+
+### Code Quality
+
+The interpreter's code follows the _PEP 8_ style guide for _Python_ code. The code is organized into modules and functions with clear responsibilities and well-defined interfaces.
+The code is also well-documented with comments and docstrings to explain the purpose of each module, class, and function. Function and method headers include a description of the function, its parameters, and its return value, following the _PEP 257_ style guide for docstrings, just as the _PEP 8_ style guide recommends.
+
+In the case of `visitor.py`, the inherited "visit" methods of the `SchemeVisitor` class do not include the `ctx` parameter in its header, as it considered unnecessary and redundant.
 
 ---

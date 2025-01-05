@@ -27,6 +27,16 @@ This project was created as a University assignment for the _Programming Languag
    pip install antlr4-python3-runtime
    ```
 
+   In some cases, you may need to use a virtual environment to install the previous dependencies:
+
+   ```bash
+   sudo apt update
+   sudo apt install python3-venv
+
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
    Windows users may need some additional steps to install _ANTLR_: [antlr4-tools-reference](https://github.com/antlr/antlr4-tools)
 
 2. Build the project (generate the necessary _Python_ files from _ANTLR_ grammar):

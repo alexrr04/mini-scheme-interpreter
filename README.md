@@ -507,6 +507,8 @@ The interpreter's code is organized into several modules:
    - Test files with input/output pairs
    - Example Scheme programs
 
+Each module (_src/_, _src/interpreter/_, _src/build_, _tests/_) has a `__init__.py` file to define the module as a package.
+
 ### Execution Flow
 
 The interpreter follows the following execution flow:

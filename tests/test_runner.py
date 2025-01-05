@@ -4,14 +4,20 @@ import argparse
 
 
 def run_test(scheme_file, input_file, output_file, interpreter="src/scheme.py"):
-    """Run a single Scheme test file and compare its output."""
-    # Read the input and expected output
+    """
+    Run a single Scheme test file and compare its output.
+
+    Args:
+        scheme_file (str): Path to the Scheme file to test.
+        input_file (str): Path to the input file for the test.
+        output_file (str): Path to the expected output file for the test.
+        interpreter (str): Path to the Scheme interpreter script.
+    """
     with open(input_file, "r") as infile:
         test_input = infile.read()
     with open(output_file, "r") as outfile:
         expected_output = outfile.read()
-
-    # Run the interpreter as a subprocess
+    
     result = subprocess.run(
         ["python", interpreter, scheme_file],
         input=test_input,
@@ -34,7 +40,13 @@ def run_test(scheme_file, input_file, output_file, interpreter="src/scheme.py"):
 
 
 def run_all_tests(test_dir, interpreter="src/scheme.py"):
-    """Run all Scheme tests in the specified directory."""
+    """
+    Run all Scheme tests in the specified directory.
+
+    Args:
+        test_dir (str): Path to the directory containing test files.
+        interpreter (str): Path to the Scheme interpreter script.
+    """
     test_files = [
         f for f in os.listdir(test_dir) if f.endswith(".scm")
     ]
@@ -60,7 +72,13 @@ def run_all_tests(test_dir, interpreter="src/scheme.py"):
 
 
 def run_single_test(scheme_file, interpreter="src/scheme.py"):
-    """Run a single Scheme test file."""
+    """
+    Run a single Scheme test file.
+
+    Args:
+        scheme_file (str): Path to the Scheme file to test.
+        interpreter (str): Path to the Scheme interpreter script.
+    """
     base_name = os.path.splitext(os.path.basename(scheme_file))[0]
     test_dir = os.path.dirname(scheme_file)
     input_file = os.path.join(test_dir, f"{base_name}.in")
@@ -77,6 +95,9 @@ def run_single_test(scheme_file, interpreter="src/scheme.py"):
 
 
 def main():
+    """
+    Main function to parse arguments and run tests.
+    """
     parser = argparse.ArgumentParser(description="Run Scheme tests")
     parser.add_argument(
         "file", nargs="?", help="Run a specific Scheme test file (.scm)", default=None
@@ -87,10 +108,8 @@ def main():
     interpreter = "src/scheme.py"
 
     if args.file:
-        # Run a single specified test
         run_single_test(args.file, interpreter)
     else:
-        # Run all tests in the test directory
         run_all_tests(test_dir, interpreter)
 
 

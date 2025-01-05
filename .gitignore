@@ -10,7 +10,7 @@ env/
 .antlr/
 
 # Ignore makefile generated files
-generated/
+build
 
 # OS-specific files
 .DS_Store

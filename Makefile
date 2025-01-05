@@ -2,7 +2,7 @@
 
 ANTLR=antlr4
 GRAMMAR=scheme.g4
-OUTPUT_DIR=src/generated
+OUTPUT_DIR=src/build
 GENERATED_FILES=$(OUTPUT_DIR)/schemeLexer.py $(OUTPUT_DIR)/schemeParser.py $(OUTPUT_DIR)/schemeVisitor.py
 INIT_FILE=$(OUTPUT_DIR)/__init__.py
 MAKEFILE=Makefile

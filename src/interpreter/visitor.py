@@ -31,6 +31,8 @@ class SchemeVisitor(schemeVisitor):
         """Pop the current scope from the symbol table."""
         if len(self.symbol_table) > 1:
             self.symbol_table.pop()
+        else:
+            print("Error: Attempted to pop the global scope.")
 
     def visitRoot(self, ctx):
         """Visit the root node."""
@@ -41,36 +43,67 @@ class SchemeVisitor(schemeVisitor):
 
     def visitConstantDefinitionExpr(self, ctx):
         """Handle 'define' for constants."""
-        identifier = ctx.ID().getText()
-        value = self.visit(ctx.expr())
-        self.current_scope()[identifier] = value
+        try:
+            identifier = ctx.ID().getText()
+
+            if identifier in self.current_scope():
+                raise ValueError(f"Constant '{identifier}' is already defined in the current scope.")
+
+            value = self.visit(ctx.expr())
+            self.current_scope()[identifier] = value
+            
+        except ValueError as e:
+            print(f"Error defining constant '{ctx.ID().getText()}': {e}")
 
     def visitFunctionDefinitionExpr(self, ctx):
         """Handle 'define' for functions."""
-        function_name = ctx.ID().getText()
-        parameters = [param.getText() for param in ctx.parameters().ID()]
-        body = list(ctx.expr())
-        self.current_scope()[function_name] = (parameters, body)
+        try:
+            function_name = ctx.ID().getText()
+
+            if function_name in self.current_scope():
+                raise ValueError(f"Function '{function_name}' is already defined in the current scope.")
+
+            parameters = [param.getText() for param in ctx.parameters().ID()]
+            body = list(ctx.expr())
+            self.current_scope()[function_name] = (parameters, body)
+
+        except ValueError as e:
+            print(f"Error defining function '{ctx.ID().getText()}': {e}")
 
     def visitFunctionCallExpr(self, ctx):
         """Evaluate function calls."""
-        function_name = ctx.ID().getText()
-        arguments = [self.visit(expr) for expr in ctx.expr()]
+        try: 
 
-        for scope in reversed(self.symbol_table):
-            if function_name in scope:
-                parameters, body = scope[function_name]
-                break
+            function_name = ctx.ID().getText()
+            arguments = [self.visit(expr) for expr in ctx.expr()]
 
-        self.push_scope()
-        self.current_scope().update(dict(zip(parameters, arguments)))
+            for scope in reversed(self.symbol_table):
+                if function_name in scope:
+                    parameters, body = scope[function_name]
+                    break
+            else:
+                raise ValueError(f"Undefined function: '{function_name}'")
+            
+            # Check for parameter mismatch
+            if len(arguments) != len(parameters):
+                raise ValueError(
+                    f"Function '{function_name}' expects {len(parameters)} arguments, "
+                    f"but {len(arguments)} were provided."
+                )
 
-        result = None
-        for expression in body:
-            result = self.visit(expression)
+            # Create a new scope for the function call and match parameters to arguments
+            self.push_scope()
+            self.current_scope().update(dict(zip(parameters, arguments)))
 
-        self.pop_scope()
-        return result
+            result = None
+            for expression in body:
+                result = self.visit(expression)
+
+            self.pop_scope()
+            return result
+        
+        except ValueError as e:
+            print(f"Error calling function '{ctx.ID().getText()}': {e}")
 
     def visitIfExpr(self, ctx):
         """Evaluate 'if' expressions."""
@@ -148,16 +181,24 @@ class SchemeVisitor(schemeVisitor):
 
     def visitLetExpr(self, ctx):
         """Evaluate 'let' expressions."""
-        self.push_scope()  # Create a new scope for the 'let' expression
+        try:
+            self.push_scope()  # Create a new scope for the 'let' expression
 
-        for binding in ctx.letBinding():
-            identifier = binding.ID().getText()
-            value = self.visit(binding.expr())
-            self.current_scope()[identifier] = value
+            for binding in ctx.letBinding():
+                identifier = binding.ID().getText()
 
-        result = [self.visit(expression) for expression in ctx.expr()]
-        self.pop_scope()  # Remove the scope after evaluating the 'let' expression
-        return result
+                if identifier in self.current_scope():
+                    raise ValueError(f"Variable '{identifier}' is already defined in the current scope.")
+                
+                value = self.visit(binding.expr())
+                self.current_scope()[identifier] = value
+
+            result = [self.visit(expression) for expression in ctx.expr()]
+            self.pop_scope()  # Remove the scope after evaluating the 'let' expression
+            return result
+        
+        except ValueError as e:
+            print(f"Error evaluating 'let' expression: {e}")
 
     def visitDisplayExpr(self, ctx):
         """Display an expression or literal."""
@@ -198,10 +239,16 @@ class SchemeVisitor(schemeVisitor):
 
     def visitIdentifierExpr(self, ctx):
         """Evaluate identifiers."""
-        identifier = ctx.getText()
+        try:
+            identifier = ctx.getText()
 
-        # Look for the identifier in the current scope stack
-        for scope in reversed(self.symbol_table):
-            if identifier in scope:
-                return scope[identifier]
+            # Look for the identifier in the current scope stack
+            for scope in reversed(self.symbol_table):
+                if identifier in scope:
+                    return scope[identifier]
+                
+            raise ValueError(f"Undefined identifier: '{identifier}'")
+        
+        except ValueError as e:
+            print(f"Error evaluating identifier '{ctx.getText()}': {e}")
 

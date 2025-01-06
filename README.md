@@ -626,7 +626,7 @@ By using these functions, the interpreter can internally work with python data s
 
 There is also a function to run _Scheme_ programs:
 
-- `run_program(source_code, program)`: Executes a _Scheme_ program by evaluating each expression in the program. This function is used to run _Scheme_ files and tests, or simply to evaluate a string of _Scheme_ code.
+- `run_program(source_code, program, dry_run=False)`: Executes a _Scheme_ program by evaluating each expression in the program. This function is used to run _Scheme_ files and tests, or simply to evaluate a string of _Scheme_ code.
 
   ```python
   program = "(define (square x) (* x x)) (square 5)"
@@ -634,6 +634,8 @@ There is also a function to run _Scheme_ programs:
   ```
 
   The `run_program` function is also used to print the syntax tree of the program when there are syntax errors.
+
+  if `dry_run` argument is set to `True`, the function will only populate the symbol table with the global functions and constants defined in the program.
 
 ### Error Handling
 

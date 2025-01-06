@@ -138,12 +138,12 @@ There is also a test to check that the interpreter acts correctly when there is 
 - Example:
 
   ```scheme
-  (= 3 3) ; Result: #t
-  (<> 5 3) ; Result: #t
-  (< 5 3) ; Result: #f
-  (> 5 3) ; Result: #t
-  (<= 3 3) ; Result: #t
-  (>= 2 3) ; Result: #f
+  (= 3 3) ; Result: #t (3 is equal to 3)
+  (<> 5 3) ; Result: #t (5 is different from 3)
+  (< 5 3) ; Result: #f (5 is not less than 3)
+  (> 5 3) ; Result: #t (5 is greater than 3)
+  (<= 3 3) ; Result: #t (3 is less than or equal to 3)
+  (>= 2 3) ; Result: #f (2 is not greater than or equal to 3)
   ```
 
 ### Comments

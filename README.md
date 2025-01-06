@@ -134,16 +134,16 @@ There is also a test to check that the interpreter acts correctly when there is 
 
 ### Relational operators
 
-- Supported operators: `>`, `<`, `>=`, `<=`, `=`, `<>`
+- Supported operators: `=`, `<>`, `<`, `>`, `<=`, `>=`
 - Example:
 
   ```scheme
-  (> 5 3) ; Result: #t
-  (< 5 3) ; Result: #f
-  (>= 2 3) ; Result: #f
-  (<= 3 3) ; Result: #t
   (= 3 3) ; Result: #t
   (<> 5 3) ; Result: #t
+  (< 5 3) ; Result: #f
+  (> 5 3) ; Result: #t
+  (<= 3 3) ; Result: #t
+  (>= 2 3) ; Result: #f
   ```
 
 ### Comments

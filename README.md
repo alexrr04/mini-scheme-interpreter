@@ -459,7 +459,7 @@ The grammar for the _Mini Scheme_ language is defined in the `scheme.g4` file us
 - `parameters`: Matches zero or more parameters for function definitions.
 - `letBinding`: Matches variable bindings for `let` expressions.
 - `arOperator`: Matches arithmetic operators (`+`, `-`, `*`, `/`, `mod`).
-- `relOperator`: Matches relational operators (`<`, `>`, `<=`, `>=`, `=`, `<>`).
+- `relOperator`: Matches relational operators (`=`, `<>`, `<`, `>`, `<=`, `>=`).
 - `literal`: Matches literals such as numbers, booleans, strings, identifiers, and quoted lists.
 - `quotedList`: Matches quoted lists.
 - `NUMBER`: Matches numbers (integers and floating-point numbers).

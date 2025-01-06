@@ -40,11 +40,11 @@ parameters: ID*;                                    // Zero or more parameters
 
 letBinding: '(' ID expr ')';                        // (variable_name expression)
 
-// Arithmetic Operator rules
-arOperator: '*' | '/' | 'mod' | '+' | '-'           // Arithmetic operators
+arOperator: ('*' | '/' | 'mod')                     // Arithmetic operators
+          | ('+' | '-')           
           ;
 
-relOperator: '<' | '>' | '<=' | '>=' | '=' | '<>'   // Relational operators
+relOperator: '=' | '<>' | '<' | '>' | '<=' | '>='   // Relational operators
            ;
 
 literal: quotedList                             # QuotedListExpr
